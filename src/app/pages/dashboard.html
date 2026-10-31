@@ -1,0 +1,20 @@
+<section class="page-enter">
+  <div class="page-head"><div><p class="eyebrow">Overview</p><h1>Dashboard</h1><p>Welcome back, here’s what’s happening with your business.</p></div><div class="head-actions"><select class="field" [value]="range()" (change)="range.set($any($event.target).value)"><option>This week</option><option>This month</option><option>This quarter</option><option>This year</option></select><a class="btn btn-primary" routerLink="/invoices/new">＋ New invoice</a></div></div>
+  <div class="metric-grid">
+    <article class="card metric"><div class="metric-icon blue">▤</div><div><span>Total invoiced</span><strong>$125,430</strong><small class="up">↑ 12.4% <i>vs last period</i></small></div></article>
+    <article class="card metric"><div class="metric-icon green">＄</div><div><span>Total collected</span><strong>$92,760</strong><small class="up">↑ 18.2% <i>vs last period</i></small></div></article>
+    <article class="card metric"><div class="metric-icon red">◷</div><div><span>Outstanding</span><strong>$32,670</strong><small class="down">↓ 5.1% <i>vs last period</i></small></div></article>
+    <article class="card metric"><div class="metric-icon purple">◇</div><div><span>Pending quotes</span><strong>18</strong><small class="up">↑ 28% <i>conversion</i></small></div></article>
+  </div>
+  <div class="dashboard-grid">
+    <article class="card revenue"><div class="card-head"><div><h2>Revenue overview</h2><p>Invoiced and collected revenue</p></div><button>{{range()}} ⌄</button></div><div class="chart" aria-label="Monthly revenue chart">
+      <div class="y-labels"><span>15k</span><span>10k</span><span>5k</span><span>0</span></div>
+      @for (m of months; track $index) { <div class="bar-group"><div class="bars"><i [style.height.%]="m*.7"></i><b [style.height.%]="collected[$index]*.7"></b></div><small>{{['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][$index]}}</small></div> }
+    </div><div class="legend"><span><i></i>Invoiced</span><span><i></i>Collected</span></div></article>
+    <article class="card activity"><div class="card-head"><div><h2>Recent activity</h2><p>Latest business updates</p></div><a href="#activity">View all</a></div>@for (a of activities; track a[1]) {<div class="activity-row"><span>{{a[0]}}</span><div><b>{{a[1]}}</b><small>{{a[2]}}</small></div></div>}</article>
+  </div>
+  <div class="bottom-grid">
+    <article class="card recent"><div class="card-head"><div><h2>Recent invoices</h2><p>Your latest billing activity</p></div><a routerLink="/invoices">View all</a></div><div class="table-wrap"><table><thead><tr><th>Invoice</th><th>Customer</th><th>Due date</th><th>Amount</th><th>Status</th></tr></thead><tbody>@for(d of store.documents().slice(4,8);track d.id){<tr><td><b>{{d.id}}</b></td><td>{{d.customer}}</td><td>{{d.due}}</td><td><b>${{d.total.toLocaleString()}}</b></td><td><span class="tag tag-{{d.status.toLowerCase().replace(' ','-')}}">{{d.status}}</span></td></tr>}</tbody></table></div></article>
+    <article class="card outstanding"><div class="card-head"><div><h2>Outstanding receivables</h2><p>By ageing period</p></div></div><div class="donut"><div><strong>$32.7k</strong><small>Outstanding</small></div></div><ul><li><i class="c1"></i><span>Current</span><b>$18,420</b></li><li><i class="c2"></i><span>1–30 days</span><b>$8,250</b></li><li><i class="c3"></i><span>31–60 days</span><b>$4,000</b></li><li><i class="c4"></i><span>60+ days</span><b>$2,000</b></li></ul></article>
+  </div>
+</section>

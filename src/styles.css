@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+:root {
+  --navy: #101827; --navy-2: #152238; --blue: #2563eb; --cyan: #38bdf8;
+  --slate: #64748b; --line: #e4eaf2; --surface: #f5f8fc; --success: #16a34a;
+  font-family: Inter, Manrope, ui-sans-serif, system-ui, -apple-system, sans-serif;
+  color: #172033; background: var(--surface); font-synthesis: none;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; min-height: 100vh; overflow-x: hidden; }
+button, input, select, textarea { font: inherit; }
+button { cursor: pointer; }
+.btn { min-height: 40px; border: 0; border-radius: 9px; padding: 0 15px; font-weight: 750; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: .18s ease; }
+.btn:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid #93c5fd; outline-offset: 1px; }
+.btn-primary { background: var(--blue); color: white; box-shadow: 0 6px 16px #2563eb2c; }
+.btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); }
+.btn-secondary { background: white; color: #25324a; border: 1px solid var(--line); }
+.btn-danger { background: #fff1f2; color: #be123c; }
+.card { background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 5px 18px rgba(30, 50, 80, .045); }
+.field { width: 100%; border: 1px solid #dbe3ee; border-radius: 9px; min-height: 40px; padding: 9px 11px; background: white; color: #1e293b; }
+.field:hover { border-color: #aebed2; }
+.label { display: block; color: #526078; font-size: 12px; font-weight: 750; margin-bottom: 6px; }
+.tag { display: inline-flex; padding: 5px 9px; border-radius: 999px; font-size: 11px; font-weight: 800; }
+.tag-paid,.tag-accepted { background:#eafaf0;color:#14833c}.tag-overdue,.tag-rejected{background:#fff0f0;color:#c52a2a}.tag-draft{background:#f1f5f9;color:#526078}.tag-sent,.tag-issued{background:#eaf2ff;color:#2563eb}.tag-partially-paid,.tag-viewed{background:#fff7e7;color:#b36b00}
+.page-enter { animation: fadeUp .28s ease both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(5px); } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior:auto!important; animation:none!important; transition:none!important } }
