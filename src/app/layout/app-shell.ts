@@ -15,6 +15,6 @@ export class AppShell {
   protected nav = [
     ['dashboard','Dashboard','/dashboard'], ['quote','Quotations','/quotations'], ['invoice','Invoices','/invoices'],
     ['customers','Customers','/customers'], ['products','Products & Services','/products'], ['payments','Payments','/payments'],
-    ['taxes','Tax Management','/taxes'], ['reports','Reports','/reports'], ['branding','Branding & Templates','/branding'], ['settings','Settings','/settings']
+    ['taxes','Tax Management','/taxes'], ['reports','Reports','/reports'], ['branding','Branding & Templates','/branding'], ['settings','Settings','/settings/quotations']
   ];
 }
