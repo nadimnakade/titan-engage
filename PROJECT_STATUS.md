@@ -10,8 +10,11 @@
 - Live professional document preview and print/PDF workflow
 - LocalStorage persistence, seeded data, toast feedback and demo reset
 - Responsive mobile editor/preview tabs
-- Demonstration routes for remaining product modules
+- Full customer, product/service, payment and tax profile CRUD workflows with local persistence
+- Reports centre with selectable reports, filters, charts, tables and CSV exports
+- Branding editor with live invoice preview, colour controls and persistent template selection
+- Settings centre with business profile, users and configurable organisation options
 
 ## Next production phase
 
-Expand the customer, product, payment, tax, reporting, branding and super-admin demonstration modules after stakeholder review of the core visual language and document workflows.
+After stakeholder approval, connect the prototype services to the planned .NET API and PostgreSQL database, then add authentication and tenant isolation.
