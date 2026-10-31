@@ -16,6 +16,7 @@ import { Component, input } from '@angular/core';
   @case('bell'){<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>}
   @case('help'){<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.7 2.7 0 1 1 4.6 1.9c-1.3 1.1-2.1 1.5-2.1 3.1M12 18h.01"/>}
   @case('menu'){<path d="M4 7h16M4 12h16M4 17h16"/>}
+  @case('building'){<path d="M4 21h16M6 21V5l6-2 6 2v16M9 8h1M14 8h1M9 12h1M14 12h1M9 16h1M14 16h1"/>}
   @default{<circle cx="12" cy="12" r="9"/>}
 }</svg>`,styles:[`:host{display:inline-grid;place-items:center;line-height:0;flex:0 0 auto}`]})
 export class UiIcon{readonly name=input.required<string>();readonly size=input(20)}

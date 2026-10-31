@@ -21,11 +21,11 @@
       <button class="menu-btn" (click)="mobileOpen.set(true)" aria-label="Open menu"><ui-icon name="menu" [size]="21" /></button>
       <label class="global-search"><ui-icon name="search" [size]="17" /><input placeholder="Search invoices, customers, quotes…" aria-label="Global search"><kbd>⌘ K</kbd></label>
       <div class="top-actions">
-        <button class="entity">Acme Trading Ltd <span>⌄</span></button>
+        <button class="entity"><ui-icon name="building" [size]="17" /><b>Acme Trading Ltd</b><span>⌄</span></button>
         <div class="pop-wrap"><button class="icon-btn" (click)="notificationsOpen.set(!notificationsOpen())" aria-label="Notifications"><ui-icon name="bell" [size]="18" /><i></i></button>
           @if (notificationsOpen()) { <div class="popover notifications"><b>Notifications</b><p><span>✓</span> Invoice INV-2026-0125 was paid.</p><p><span>◉</span> Global Tech viewed your quote.</p></div> }
         </div>
-        <div class="pop-wrap"><button class="top-avatar" (click)="profileOpen.set(!profileOpen())">JS</button>
+        <div class="pop-wrap"><button class="top-avatar" (click)="profileOpen.set(!profileOpen())"><span>JS</span><i>⌄</i></button>
           @if (profileOpen()) { <div class="popover profile"><b>John Smith</b><small>john@acmetrading.demo</small><button>Profile settings</button><button (click)="store.reset()">Reset demo data</button></div> }
         </div>
       </div>
