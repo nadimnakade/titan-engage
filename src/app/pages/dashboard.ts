@@ -1,8 +1,9 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { PrototypeStore } from '../data/prototype-store';
+import { UiIcon } from '../shared/ui-icon';
 
-@Component({ selector:'app-dashboard', imports:[RouterLink], templateUrl:'./dashboard.html', styleUrl:'./dashboard.css' })
+@Component({ selector:'app-dashboard', imports:[RouterLink,UiIcon], templateUrl:'./dashboard.html', styleUrl:'./dashboard.css' })
 export class DashboardPage {
   protected store=inject(PrototypeStore); protected range=signal('This year');
   protected months=[48,63,51,74,68,82,76,91,88,105,111,128];

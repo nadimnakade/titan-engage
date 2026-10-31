@@ -1,9 +1,10 @@
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { PrototypeStore } from '../data/prototype-store';
+import { UiIcon } from '../shared/ui-icon';
 
 @Component({
-  selector: 'app-shell', imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  selector: 'app-shell', imports: [RouterOutlet, RouterLink, RouterLinkActive, UiIcon],
   templateUrl: './app-shell.html', styleUrl: './app-shell.css'
 })
 export class AppShell {
@@ -12,8 +13,8 @@ export class AppShell {
   protected profileOpen = signal(false);
   protected notificationsOpen = signal(false);
   protected nav = [
-    ['⌂','Dashboard','/dashboard'], ['◇','Quotations','/quotations'], ['▤','Invoices','/invoices'],
-    ['♙','Customers','/customers'], ['▣','Products & Services','/products'], ['＄','Payments','/payments'],
-    ['⚙','Tax Management','/taxes'], ['▥','Reports','/reports'], ['◉','Branding & Templates','/branding'], ['⚙','Settings','/settings']
+    ['dashboard','Dashboard','/dashboard'], ['quote','Quotations','/quotations'], ['invoice','Invoices','/invoices'],
+    ['customers','Customers','/customers'], ['products','Products & Services','/products'], ['payments','Payments','/payments'],
+    ['taxes','Tax Management','/taxes'], ['reports','Reports','/reports'], ['branding','Branding & Templates','/branding'], ['settings','Settings','/settings']
   ];
 }
