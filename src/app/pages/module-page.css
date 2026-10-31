@@ -2,3 +2,17 @@
 @media(max-width:1000px){.branding-layout{grid-template-columns:1fr}.brand-preview{display:none}.template-grid{grid-template-columns:repeat(2,1fr)}}@media(max-width:750px){.metric-row{grid-template-columns:1fr 1fr}.metric-row article:last-child{display:none}.report-layout,.settings-layout{grid-template-columns:1fr}.report-menu,.settings-menu{display:flex;overflow:auto}.report-menu>b{display:none}.report-menu button,.settings-menu button{white-space:nowrap;width:auto}.filters{flex-wrap:wrap}.filters label{flex-basis:100%}.table-card table{min-width:760px}}@media(max-width:560px){.head{align-items:flex-start;flex-direction:column}.head .btn{width:100%}.metric-row{grid-template-columns:1fr}.metric-row article:nth-child(2){display:none}.filters select{flex:1}.report-main{padding:14px}.report-metrics{grid-template-columns:1fr 1fr}.report-metrics div:last-child{display:none}.report-chart{height:180px}.two-col,.settings-grid,.modal-fields,.detail-grid{grid-template-columns:1fr}.template-grid{grid-template-columns:1fr 1fr}.modal-backdrop{padding:10px}.settings-form{padding:15px}}
 
 .head h1{font-size:30px;font-weight:800;letter-spacing:-1px}.head p{font-size:11px}.metric-row article{min-height:104px;padding:18px 20px}.metric-row span{font-size:10px}.metric-row b{font-size:21px}.filters label{min-height:44px;border-color:#cfd9e6}.filters label:focus-within{border-color:#2563eb;box-shadow:0 0 0 3px #2563eb12}.filters input{font-size:11px}.table-card{overflow:hidden}.table-card table,.report-table table{font-size:10px}.row-actions button{width:36px;height:36px}.report-menu button,.settings-menu button{min-height:42px;font-size:10px}.template-grid button{min-height:136px;transition:border-color .2s,box-shadow .2s}.template-grid button:hover{border-color:#9fbcf5;box-shadow:0 6px 18px #0f172a0b}.modal header>button{width:44px;height:44px;border-radius:9px}.modal header>button:hover{background:#f1f5f9}.option-list label{min-height:64px}.member-list>.btn{min-height:44px}
+
+/* Data-grid polish: stronger toolbar, sticky labels and clearer pagination */
+.filters{background:linear-gradient(180deg,#fff,#fbfdff)}
+.filters label{height:44px;border-radius:10px;background:#f8fafc;color:#2563eb;transition:background .2s,border-color .2s,box-shadow .2s}
+.filters label:focus-within{background:#fff}
+.filters select{width:160px}
+.table-wrap{overscroll-behavior-inline:contain}
+.table-card table,.report-table table{border-collapse:separate;border-spacing:0}
+.table-card th,.report-table th{position:sticky;top:0;z-index:2;color:#66758b;letter-spacing:.65px;background:#f7faff;box-shadow:inset 0 -1px #e7edf5}
+.table-card tbody tr{transition:background-color .18s ease,box-shadow .18s ease}
+.table-card tbody tr:hover{background:#f5f9ff;box-shadow:inset 3px 0 #38bdf8}
+.table-card>footer button{width:32px;height:32px;border-radius:8px;color:#526078;transition:background .18s,border-color .18s,color .18s,transform .18s}
+.table-card>footer button:hover{background:#edf5ff;border-color:#abc7f5;color:#1d4ed8;transform:translateY(-1px)}
+.table-card>footer .active-page{border-color:#2563eb;box-shadow:0 5px 13px #2563eb2b}
