@@ -6,3 +6,7 @@
 
 .editor-head{min-height:80px}.editor-head h1{font-size:20px;font-weight:800}.back{width:44px;height:44px}.section{padding:20px}.section-title>span{width:32px;height:32px;border-radius:9px}.section-title h2{font-size:14px}.section-title p{font-size:10px}.item-row .field{min-height:38px}.remove{width:36px;height:36px}.item-buttons button{min-height:38px;font-size:10px}.preview-toolbar{height:46px}.paper{border-radius:2px;box-shadow:0 8px 30px #1e293b18}.mobile-tabs button{min-height:44px}
 .editor-grid,.edit-panel,.section,.items-section{min-width:0;max-width:100%}.items{max-width:100%}
+
+/* V2 continuous split workspace: each side scrolls independently. */
+@media(min-width:901px){.editor-grid{grid-template-columns:minmax(430px,42fr) minmax(560px,58fr);height:calc(100vh - 144px);overflow:hidden}.edit-panel{height:100%;overflow:auto}.preview-panel{position:relative;top:auto;min-height:0;height:100%;overflow:auto}}
+@media(min-width:901px) and (max-width:1200px){.editor-grid{grid-template-columns:minmax(430px,45fr) minmax(500px,55fr)}}

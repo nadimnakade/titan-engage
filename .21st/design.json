@@ -1,0 +1,20 @@
+{
+  "name": "Titan Autoworx",
+  "direction": "Apple-style cinematic automotive product story",
+  "palette": {
+    "background": "#070708",
+    "surface": "#111113",
+    "text": "#f5f5f4",
+    "accent": "#e10606",
+    "metal": "#a3a3a3"
+  },
+  "decisions": [
+    "Use true Titan red rather than orange for all interactive and lighting accents.",
+    "Pair original campaign photography with a subtle procedural 3D garage overlay in the hero.",
+    "Keep condensed italic display typography, sharp technical detailing, and restrained radii.",
+    "Prioritize real workshop craft, performance builds, and Malta-specific off-road imagery over generic supercar stock."
+    ,"Keep the homepage hero conversion-focused; place experimental scrollytelling in a dedicated proof-of-craft section below it."
+    ,"Use Apple-style motion principles for the automotive sequence: direct scroll response, continuous adjacent-frame interpolation, restrained overlays, symmetric disassembly/reassembly, and an accessible static fallback."
+    ,"Match the approved build boards with a dense workshop editorial layout: sharp two-pixel corners, thin technical borders, compact vertical rhythm, image-led service cards, and the same content hierarchy on mobile."
+  ]
+}
