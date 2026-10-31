@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { QuotationStore, CustomField, ProductTemplate } from '../../data/quotation-store';
 import { PrototypeStore } from '../../data/prototype-store';
@@ -14,6 +14,13 @@ export class QuoteSettingsPage {
   protected defaultSubject = 'Quotation {{quote_number}} from Acme Trading Ltd';
   protected defaultMessage = 'Hello {{customer_name}},\n\nPlease find attached quotation {{quote_number}}.';
   protected tab = signal('Custom Fields');
+  protected fieldQuery = signal('');
+  protected filteredFields = computed(() => {
+    const query = this.fieldQuery().trim().toLowerCase();
+    return this.qs.fields().filter((field) =>
+      `${field.label} ${field.type} ${field.section} ${field.options.join(' ')}`.toLowerCase().includes(query),
+    );
+  });
   protected fieldModal = signal(false);
   protected templateModal = signal(false);
   protected editing = signal<CustomField>({
