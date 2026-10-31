@@ -1,0 +1,22 @@
+<section class="page-enter">
+  <div class="head">
+    <div><p>Sales / Quotations</p><h1>Quotations</h1><span>Create, configure and manage customer quotations.</span></div>
+    <div class="head-actions"><a class="btn btn-secondary" routerLink="/settings/quotations">Quotation settings</a><a class="btn btn-primary" routerLink="/quotations/new">＋ New quotation</a></div>
+  </div>
+  <nav class="views" aria-label="Quotation views">
+    @for(v of views;track v){<button [class.active]="view()===v" (click)="chooseView(v)">{{v}}<span>{{viewCount(v)}}</span></button>}
+  </nav>
+  <article class="card list">
+    <div class="toolbar">
+      <label class="search">⌕<input placeholder="Search quote, customer or product…" [ngModel]="query()" (ngModelChange)="query.set($event)"></label>
+      <button class="btn btn-secondary" (click)="filtersOpen.set(!filtersOpen())">☷ Filters</button><button class="btn btn-secondary" (click)="clear()">Reset</button>
+    </div>
+    @if(filtersOpen()){<div class="filters"><label>Status<select class="field" [ngModel]="status()" (ngModelChange)="status.set($event)"><option>All</option><option>Active</option><option>Closed</option><option>Rejected</option></select></label><label>Conversion<select class="field" [ngModel]="converted()" (ngModelChange)="converted.set($event)"><option>All</option><option>Converted</option><option>Not converted</option></select></label><label>Email<select class="field" [ngModel]="email()" (ngModelChange)="email.set($event)"><option>All</option><option>Sent</option><option>Not sent</option><option>Failed</option></select></label><label>Created after<input class="field" type="date"></label><label>Minimum value<input class="field" type="number" placeholder="$0"></label></div>}
+    @if(selected().size){<div class="bulk"><b>{{selected().size}} selected</b>@if(view()==='Archived'||view()==='Trash'){<button (click)="bulk('Restore')">Restore</button>}@else{<button (click)="bulk('Archive')">Archive</button><button (click)="bulk('Delete')">Move to trash</button>}<button (click)="toast.notify('Bulk PDF package prepared')">Export PDFs</button></div>}
+    <div class="table-wrap"><table><thead><tr><th><input type="checkbox" [checked]="selected().size===visible().length&&visible().length>0" (change)="toggleAll()"></th><th>Quote</th><th>Customer</th><th>Created</th><th>Valid until</th><th>Total</th><th>Status</th><th>Invoice</th><th>Email</th><th></th></tr></thead><tbody>
+      @for(q of visible();track q.id){<tr><td><input type="checkbox" [checked]="selected().has(q.id)" (change)="toggle(q.id)"></td><td><a [routerLink]="['/quotations',q.id]">{{q.id}}</a></td><td><b>{{q.customer}}</b></td><td>{{q.created}}</td><td>{{q.validUntil}}</td><td><b>{{q.currency}} {{q.total.toLocaleString()}}</b></td><td><span class="state {{q.status.toLowerCase()}}">{{q.status}}</span></td><td>@if(q.invoice){<a class="invoice">{{q.invoice}}</a>}@else{<span>—</span>}</td><td><span class="email {{q.emailState.toLowerCase().replace(' ','-')}}">{{q.emailState}}</span></td><td class="actions"><button (click)="menu.set(menu()===q.id?null:q.id)" aria-label="Actions for {{q.id}}">•••</button>@if(menu()===q.id){<div class="menu">@for(a of (q.visibility==='Normal'?['View','Edit','Duplicate','PDF','Convert','Archive','Delete']:['View','Restore']);track a){<button [disabled]="a==='Convert'&&!!q.invoice" (click)="act(q,a)">{{a}}</button>}</div>}</td></tr>}
+      @empty{<tr><td colspan="10" class="empty">No quotations match this view and filter combination.</td></tr>}
+    </tbody></table></div>
+    <footer><span>Showing {{visible().length}} results</span><div><button>‹</button><button class="current">1</button><button>›</button></div></footer>
+  </article>
+</section>

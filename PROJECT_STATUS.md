@@ -14,6 +14,11 @@
 - Reports centre with selectable reports, filters, charts, tables and CSV exports
 - Branding editor with live invoice preview, colour controls and persistent template selection
 - Settings centre with business profile, users and configurable organisation options
+- Requirement-driven quotation workspace with independent lifecycle, archive/trash, conversion and email states
+- Advanced quotation views, combined filters, bulk actions, duplicate, PDF and quote-to-invoice prototype flows
+- Quotation detail workspace with items, notes, email history and immutable-style activity timeline
+- Universal custom-field builder and reusable product-template configuration with local persistence
+- Quotation-specific VAT display, PDF/branding and email-template settings
 
 ## Next production phase
 
