@@ -17,6 +17,12 @@ import { Component, input } from '@angular/core';
   @case('help'){<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.7 2.7 0 1 1 4.6 1.9c-1.3 1.1-2.1 1.5-2.1 3.1M12 18h.01"/>}
   @case('menu'){<path d="M4 7h16M4 12h16M4 17h16"/>}
   @case('building'){<path d="M4 21h16M6 21V5l6-2 6 2v16M9 8h1M14 8h1M9 12h1M14 12h1M9 16h1M14 16h1"/>}
+  @case('filter'){<path d="M4 5h16l-6 7v5l-4 2v-7z"/>}
+  @case('refresh'){<path d="M20 6v5h-5M4 18v-5h5"/><path d="M18.5 9a7 7 0 0 0-12-2.5L4 9M5.5 15a7 7 0 0 0 12 2.5L20 15"/>}
+  @case('download'){<path d="M12 3v12M7 10l5 5 5-5M5 21h14"/>}
+  @case('check'){<circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/>}
+  @case('warning'){<path d="M10.3 3.7 2.4 18a2 2 0 0 0 1.8 3h15.6a2 2 0 0 0 1.8-3L13.7 3.7a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>}
+  @case('file'){<path d="M6 3h8l4 4v14H6zM14 3v5h5"/><path d="M9 13h6M9 17h4"/>}
   @default{<circle cx="12" cy="12" r="9"/>}
 }</svg>`,styles:[`:host{display:inline-grid;place-items:center;line-height:0;flex:0 0 auto}`]})
 export class UiIcon{readonly name=input.required<string>();readonly size=input(20)}

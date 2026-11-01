@@ -23,3 +23,4 @@
 
 /* Comfortable navigation and toolbar sizing for 40+ users. */
 .sidebar nav a,.sidebar-bottom>a{font-size:14px;min-height:48px}.sidebar .nav-icon{width:32px;height:32px}.sidebar .nav-icon ui-icon{transform:scale(1.12)}.brand small{font-size:11px}.tenant b{font-size:14px}.tenant small{font-size:12px}.global-search input{font-size:14px}.entity b{font-size:14px}.entity,.icon-btn{min-height:44px}.icon-btn{width:44px;font-size:20px}.top-avatar{height:44px!important}.popover p,.profile button{font-size:14px}
+@media(max-width:560px){.top-avatar{display:none!important}.top-actions{min-width:0}.topbar{overflow:hidden}}

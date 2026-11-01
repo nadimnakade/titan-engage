@@ -50,3 +50,11 @@ main table td small{font-size:12px!important;line-height:1.35}
 main table th,main table td{line-height:1.45}
 main table input[type="checkbox"]{width:18px;height:18px;accent-color:var(--blue)}
 main table button:not(.quote-ref),main .row-actions button{min-width:42px;min-height:42px;font-size:18px}
+
+/* Shared workspace tabs: use this class for peer views and settings sections. */
+main .workspace-tabs{display:flex;gap:4px;margin:20px 0 16px;padding:0 4px;border-bottom:1px solid #dfe6ee;overflow-x:auto;overflow-y:hidden;background:transparent;scrollbar-width:thin}
+main .workspace-tabs button{min-height:48px;padding:0 20px;border:0;border-bottom:2px solid transparent;border-radius:8px 8px 0 0;background:transparent;color:#3f5c82;font-size:13px;font-weight:650;white-space:nowrap;transition:background .18s,color .18s,box-shadow .18s}
+main .workspace-tabs button:hover{background:#f5f9ff;color:#0f67ff}
+main .workspace-tabs button.active{background:#f7faff;color:#0f67ff;border-bottom-color:#0f67ff;box-shadow:inset 0 0 0 1px #d9e7f8;font-weight:750}
+main .workspace-tabs button span{display:inline-grid;place-items:center;min-width:22px;height:22px;margin-left:7px;padding:0 6px;border-radius:999px;background:#e7eef8;color:#526b8c;font-size:11px}
+main .workspace-tabs button.active span{background:#deebff;color:#0f67ff}

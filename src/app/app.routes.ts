@@ -20,6 +20,7 @@ export const routes: Routes = [
       { path: 'payments', loadComponent: () => import('./pages/module-page').then(m => m.ModulePage), data: { section: 'payments' } },
       { path: 'taxes', loadComponent: () => import('./pages/module-page').then(m => m.ModulePage), data: { section: 'taxes' } },
       { path: 'reports', loadComponent: () => import('./pages/module-page').then(m => m.ModulePage), data: { section: 'reports' } },
+      { path: 'reports/accounting/invoice-register', loadComponent: () => import('./pages/reports/invoice-register').then(m => m.InvoiceRegisterPage) },
       { path: 'branding', loadComponent: () => import('./pages/module-page').then(m => m.ModulePage), data: { section: 'branding' } },
       { path: 'settings/organization', loadComponent: () => import('./pages/module-page').then(m => m.ModulePage), data: { section: 'settings' } },
       { path: ':section', loadComponent: () => import('./pages/module-page').then(m => m.ModulePage) },

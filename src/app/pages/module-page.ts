@@ -1,6 +1,6 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PrototypeStore } from '../data/prototype-store';
 type Row = Record<string, string | number | boolean>;
 type Field = {
@@ -254,6 +254,7 @@ const MODULES: Record<
 export class ModulePage {
   protected store = inject(PrototypeStore);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   protected slug = this.route.snapshot.data['section'] || this.route.snapshot.paramMap.get('section') || 'customers';
   protected config = MODULES[this.slug];
   protected search = signal('');
@@ -318,6 +319,10 @@ export class ModulePage {
     'Subscription',
   ];
   constructor() {
+    effect(() => {
+      if (this.slug === 'reports' && this.report() === 'Invoice register')
+        this.router.navigate(['/reports/accounting/invoice-register']);
+    });
     this.route.paramMap.subscribe((params) => {
       const nextSlug = this.route.snapshot.data['section'] || params.get('section') || 'customers';
       if (nextSlug === this.slug) return;
