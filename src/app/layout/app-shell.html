@@ -2,35 +2,16 @@
   <a class="skip-link" href="#main-content">Skip to main content</a>
   <button class="mobile-backdrop" [class.show]="mobileOpen()" (click)="mobileOpen.set(false)" aria-label="Close menu"></button>
   <aside class="sidebar" [class.open]="mobileOpen()">
-    <a routerLink="/dashboard" class="brand" (click)="mobileOpen.set(false)">
-      <span class="logo-mark"><i></i><b></b></span>
-      <span><strong>TITAN <em>ENGAGE</em></strong><small>BUSINESS. BILLING. BEYOND.</small></span>
-    </a>
+    <div class="workspace-label"><span>Your workspace</span><button aria-label="Workspace notifications"><ui-icon name="bell" [size]="18"/></button></div>
+    <section class="user-card"><span class="profile-avatar">JS</span><strong>John Smith</strong><small>Administrator</small><div class="company-card"><span>TC</span><div><small>Company</small><b>Titan Consultancy &amp; Services</b></div></div></section>
     <nav aria-label="Primary navigation">
-      @for (item of nav; track item[1]) {
-        <a [routerLink]="item[2]" routerLinkActive="active" (click)="mobileOpen.set(false)"><span class="nav-icon"><ui-icon [name]="item[0]" [size]="18" /></span>{{item[1]}}</a>
-      }
+      @for(group of navGroups;track group.label){<div class="nav-group"><p>{{group.label}}</p>@for(item of group.items;track item[1]){<a [routerLink]="item[2]" routerLinkActive="active" (click)="mobileOpen.set(false)"><ui-icon [name]="item[0]" [size]="20"/><span>{{item[1]}}</span></a>}</div>}
     </nav>
-    <div class="sidebar-bottom">
-      <a href="mailto:support@titanengage.demo"><span class="nav-icon"><ui-icon name="help" [size]="18" /></span>Help & support</a>
-      <button class="tenant"><span class="avatar">JS</span><span><b>John Smith</b><small>Acme Trading Ltd</small></span><span>⌄</span></button>
-    </div>
+    <a routerLink="/dashboard" class="side-brand" (click)="mobileOpen.set(false)"><span class="logo-mark"><i></i><b></b></span><span><strong>TITAN</strong><em>ENGAGE</em></span></a>
   </aside>
   <div class="workspace">
-    <header class="topbar">
-      <button class="menu-btn" (click)="mobileOpen.set(true)" aria-label="Open menu"><ui-icon name="menu" [size]="21" /></button>
-      <label class="global-search"><ui-icon name="search" [size]="17" /><input placeholder="Search invoices, customers, quotes…" aria-label="Global search"><kbd>⌘ K</kbd></label>
-      <div class="top-actions">
-        <button class="entity"><ui-icon name="building" [size]="17" /><b>Acme Trading Ltd</b><span>⌄</span></button>
-        <div class="pop-wrap"><button class="icon-btn" (click)="notificationsOpen.set(!notificationsOpen())" aria-label="Notifications"><ui-icon name="bell" [size]="18" /><i></i></button>
-          @if (notificationsOpen()) { <div class="popover notifications"><b>Notifications</b><p><span>✓</span> Invoice INV-2026-0125 was paid.</p><p><span>◉</span> Global Tech viewed your quote.</p></div> }
-        </div>
-        <div class="pop-wrap"><button class="top-avatar" (click)="profileOpen.set(!profileOpen())"><span>JS</span><i>⌄</i></button>
-          @if (profileOpen()) { <div class="popover profile"><b>John Smith</b><small>john@acmetrading.demo</small><button>Profile settings</button><button (click)="store.reset()">Reset demo data</button></div> }
-        </div>
-      </div>
-    </header>
-    <main id="main-content" tabindex="-1"><router-outlet /></main>
+    <header class="mobile-topbar"><button class="menu-btn" (click)="mobileOpen.set(true)" aria-label="Open menu"><ui-icon name="menu" [size]="22"/></button><a routerLink="/dashboard"><b>TITAN</b> <span>ENGAGE</span></a><button class="mobile-avatar">JS</button></header>
+    <main id="main-content" tabindex="-1"><router-outlet/></main>
   </div>
-  @if (store.toast()) { <div class="toast"><span>✓</span>{{store.toast()}}</div> }
+  @if(store.toast()){<div class="toast" role="status"><ui-icon name="check" [size]="20"/>{{store.toast()}}</div>}
 </div>

@@ -13,6 +13,7 @@ export const routes: Routes = [
       { path: 'quotations/:id', loadComponent: () => import('./pages/quotations/quote-detail').then(m => m.QuoteDetailPage) },
       { path: 'invoices', loadComponent: () => import('./pages/document-list').then(m => m.DocumentListPage), data: { type: 'invoice' } },
       { path: 'invoices/new', loadComponent: () => import('./pages/document-editor').then(m => m.DocumentEditorPage), data: { type: 'invoice' } },
+      { path: 'supplier-orders', loadComponent: () => import('./pages/supplier-orders/supplier-orders').then(m => m.SupplierOrdersPage) },
       { path: 'settings/quotations', loadComponent: () => import('./pages/quotations/quote-settings').then(m => m.QuoteSettingsPage) },
       { path: 'settings', pathMatch: 'full', redirectTo: 'settings/quotations' },
       { path: 'customers', loadComponent: () => import('./pages/module-page').then(m => m.ModulePage), data: { section: 'customers' } },

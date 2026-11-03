@@ -12,9 +12,10 @@ export class AppShell {
   protected mobileOpen = signal(false);
   protected profileOpen = signal(false);
   protected notificationsOpen = signal(false);
-  protected nav = [
-    ['dashboard','Dashboard','/dashboard'], ['quote','Quotations','/quotations'], ['invoice','Invoices','/invoices'],
-    ['customers','Customers','/customers'], ['products','Products & Services','/products'], ['payments','Payments','/payments'],
-    ['taxes','Tax Management','/taxes'], ['reports','Reports','/reports'], ['branding','Branding & Templates','/branding'], ['settings','Settings','/settings/quotations']
+  protected navGroups = [
+    { label:'Business', items:[['quote','Quotes','/quotations'],['invoice','Invoices','/invoices'],['customers','Customers','/customers']] },
+    { label:'Supplies', items:[['supplier','Supplier Orders','/supplier-orders'],['products','Products & Services','/products'],['expenses','Expenses','/payments']] },
+    { label:'Insights', items:[['dashboard','Dashboard','/dashboard'],['reports','Reports','/reports'],['taxes','Tax Management','/taxes']] },
+    { label:'Settings', items:[['branding','Branding & Templates','/branding'],['settings','Settings','/settings/quotations']] }
   ];
 }

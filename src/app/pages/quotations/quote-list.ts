@@ -6,22 +6,187 @@ import { QuotationStore, QuoteRecord, QuoteStatus } from '../../data/quotation-s
 import { PrototypeStore } from '../../data/prototype-store';
 import { UiIcon } from '../../shared/ui-icon';
 
-@Component({selector:'app-quote-list',imports:[FormsModule,RouterLink,UiIcon,KeyValuePipe],templateUrl:'./quote-list.html',styleUrl:'./quote-list.css'})
+@Component({
+  selector: 'app-quote-list',
+  imports: [FormsModule, RouterLink, UiIcon, KeyValuePipe],
+  templateUrl: './quote-list.html',
+  styleUrl: './quote-list.css',
+})
 export class QuoteListPage {
- protected qs=inject(QuotationStore);protected toast=inject(PrototypeStore);private router=inject(Router);
- protected views=['All','Active','Closed','Rejected','Converted','Archived','Trash'];protected view=signal('All');protected query=signal('');protected searchOpen=signal(false);protected status=signal('All');protected converted=signal('All');protected email=signal('All');protected filtersOpen=signal(false);protected selected=signal<Set<string>>(new Set());protected menu=signal<string|null>(null);protected drawerId=signal<string|null>(null);protected drawerMore=signal(false);protected page=signal(1);protected pageSize=8;
- protected filterCount=computed(()=>[this.status()!=='All',this.converted()!=='All',this.email()!=='All'].filter(Boolean).length);
- protected drawerQuote=computed(()=>this.qs.quotes().find(q=>q.id===this.drawerId()));
- protected filtered=computed(()=>this.qs.quotes().filter(q=>{const v=this.view();const viewOk=v==='Archived'?q.visibility==='Archived':v==='Trash'?q.visibility==='Trash':v==='Converted'?q.visibility==='Normal'&&!!q.invoice:q.visibility==='Normal'&&!q.invoice&&(v==='All'||q.status===v);const text=`${q.id} ${q.customer} ${q.items.map(i=>`${i.name} ${i.description}`).join(' ')}`.toLowerCase();return viewOk&&text.includes(this.query().trim().toLowerCase())&&(this.status()==='All'||q.status===this.status())&&(this.converted()==='All'||(this.converted()==='Converted'?!!q.invoice:!q.invoice))&&(this.email()==='All'||q.emailState===this.email())}));
- protected visible=computed(()=>this.filtered().slice((this.page()-1)*this.pageSize,this.page()*this.pageSize));protected pages=computed(()=>Math.max(1,Math.ceil(this.filtered().length/this.pageSize)));
- @HostListener('document:keydown.escape') protected onEscape(){if(this.drawerId())this.closePreview();else if(this.filtersOpen())this.filtersOpen.set(false);else if(this.menu())this.menu.set(null);else if(!this.query())this.searchOpen.set(false)}
- protected chooseView(v:string){this.view.set(v);this.page.set(1);this.selected.set(new Set())}
- protected viewCount(v:string){return this.qs.quotes().filter(q=>v==='Archived'?q.visibility==='Archived':v==='Trash'?q.visibility==='Trash':v==='Converted'?q.visibility==='Normal'&&!!q.invoice:q.visibility==='Normal'&&!q.invoice&&(v==='All'||q.status===v)).length}
- protected openPreview(q:QuoteRecord){this.drawerId.set(q.id);this.menu.set(null)}protected closePreview(){this.drawerId.set(null);this.drawerMore.set(false)}
- protected toggle(id:string){this.selected.update(s=>{const n=new Set(s);n.has(id)?n.delete(id):n.add(id);return n})}protected toggleAll(){const ids=this.visible().map(q=>q.id);this.selected.set(this.selected().size===ids.length?new Set():new Set(ids))}
- protected updateStatus(q:QuoteRecord,status:QuoteStatus){if(q.status===status)return;this.qs.patch(q.id,{status},`Status changed from ${q.status} to ${status}`);this.toast.notify(`${q.id} status updated to ${status}`)}
- protected convertQuote(q:QuoteRecord){if(q.visibility==='Trash'){this.toast.notify('Restore this quotation before converting it');return}if(q.invoice){this.toast.notify(`${q.id} is already linked to ${q.invoice}`);return}if(q.status!=='Active'){if(!confirm(`${q.id} is ${q.status}. Reactivate it and convert to an invoice?`))return;this.qs.patch(q.id,{status:'Active'},'Reactivated for invoice conversion')}const invoice=this.qs.convert(q.id);if(invoice){this.toast.notify(`${q.id} converted successfully · ${invoice}`);this.closePreview();this.chooseView('Converted')}}
- protected act(q:QuoteRecord,action:string){this.menu.set(null);this.drawerMore.set(false);if(action==='View')this.openPreview(q);if(action==='Edit')this.router.navigate(['/quotations',q.id,'edit']);if(action==='Duplicate'){const id=this.qs.duplicate(q.id);this.toast.notify(`Duplicated as ${id}`)}if(action==='Archive'){this.qs.archive(q.id);this.toast.notify('Quotation archived');this.closePreview()}if(action==='Delete'&&confirm(`Move ${q.id} to Trash?`)){this.qs.trash(q.id);this.toast.notify('Quotation moved to Trash');this.closePreview()}if(action==='Restore'){this.qs.restore(q.id);this.toast.notify('Quotation restored');this.closePreview()}if(action==='Convert')this.convertQuote(q);if(action==='PDF')this.toast.notify(`${q.id} PDF prepared`);if(action==='Email'){this.qs.sendEmail(q.id,q.email,`Quotation ${q.id}`);this.toast.notify(`Quotation emailed to ${q.email}`)}if(action==='Print')window.print()}
- protected bulk(action:string){const count=this.selected().size;for(const id of this.selected()){if(action==='Archive')this.qs.archive(id);if(action==='Delete')this.qs.trash(id);if(action==='Restore')this.qs.restore(id)}this.toast.notify(`${action} applied to ${count} quotations`);this.selected.set(new Set())}
- protected clearFilters(){this.status.set('All');this.converted.set('All');this.email.set('All');this.page.set(1)}protected clearSearch(){this.query.set('');this.searchOpen.set(false);this.page.set(1)}protected goToPage(value:number){this.page.set(Math.min(this.pages(),Math.max(1,value)))}
+  protected qs = inject(QuotationStore);
+  protected toast = inject(PrototypeStore);
+  private router = inject(Router);
+  protected views = ['All', 'Active', 'Closed', 'Rejected', 'Converted', 'Archived', 'Trash'];
+  protected view = signal('All');
+  protected query = signal('');
+  protected searchOpen = signal(false);
+  protected status = signal('All');
+  protected converted = signal('All');
+  protected email = signal('All');
+  protected filtersOpen = signal(false);
+  protected selected = signal<Set<string>>(new Set());
+  protected menu = signal<string | null>(null);
+  protected drawerId = signal<string | null>(null);
+  protected drawerMore = signal(false);
+  protected page = signal(1);
+  protected pageSize = 8;
+  protected filterCount = computed(
+    () =>
+      [this.status() !== 'All', this.converted() !== 'All', this.email() !== 'All'].filter(Boolean)
+        .length,
+  );
+  protected drawerQuote = computed(() => this.qs.quotes().find((q) => q.id === this.drawerId()));
+  protected filtered = computed(() =>
+    this.qs.quotes().filter((q) => {
+      const v = this.view();
+      const viewOk =
+        v === 'Archived'
+          ? q.visibility === 'Archived'
+          : v === 'Trash'
+            ? q.visibility === 'Trash'
+            : v === 'Converted'
+              ? q.visibility === 'Normal' && !!q.invoice
+              : q.visibility === 'Normal' && !q.invoice && (v === 'All' || q.status === v);
+      const text =
+        `${q.id} ${q.customer} ${q.items.map((i) => `${i.name} ${i.description}`).join(' ')}`.toLowerCase();
+      return (
+        viewOk &&
+        text.includes(this.query().trim().toLowerCase()) &&
+        (this.status() === 'All' || q.status === this.status()) &&
+        (this.converted() === 'All' ||
+          (this.converted() === 'Converted' ? !!q.invoice : !q.invoice)) &&
+        (this.email() === 'All' || q.emailState === this.email())
+      );
+    }),
+  );
+  protected visible = computed(() =>
+    this.filtered().slice((this.page() - 1) * this.pageSize, this.page() * this.pageSize),
+  );
+  protected pages = computed(() => Math.max(1, Math.ceil(this.filtered().length / this.pageSize)));
+  @HostListener('document:keydown.escape') protected onEscape() {
+    if (this.drawerId()) this.closePreview();
+    else if (this.filtersOpen()) this.filtersOpen.set(false);
+    else if (this.menu()) this.menu.set(null);
+    else if (!this.query()) this.searchOpen.set(false);
+  }
+  protected chooseView(v: string) {
+    this.view.set(v);
+    this.page.set(1);
+    this.selected.set(new Set());
+  }
+  protected viewCount(v: string) {
+    return this.qs
+      .quotes()
+      .filter((q) =>
+        v === 'Archived'
+          ? q.visibility === 'Archived'
+          : v === 'Trash'
+            ? q.visibility === 'Trash'
+            : v === 'Converted'
+              ? q.visibility === 'Normal' && !!q.invoice
+              : q.visibility === 'Normal' && !q.invoice && (v === 'All' || q.status === v),
+      ).length;
+  }
+  protected openPreview(q: QuoteRecord) {
+    this.drawerId.set(q.id);
+    this.menu.set(null);
+  }
+  protected closePreview() {
+    this.drawerId.set(null);
+    this.drawerMore.set(false);
+  }
+  protected toggle(id: string) {
+    this.selected.update((s) => {
+      const n = new Set(s);
+      n.has(id) ? n.delete(id) : n.add(id);
+      return n;
+    });
+  }
+  protected toggleAll() {
+    const ids = this.visible().map((q) => q.id);
+    this.selected.set(this.selected().size === ids.length ? new Set() : new Set(ids));
+  }
+  protected updateStatus(q: QuoteRecord, status: QuoteStatus) {
+    if (q.status === status) return;
+    this.qs.patch(q.id, { status }, `Status changed from ${q.status} to ${status}`);
+    this.toast.notify(`${q.id} status updated to ${status}`);
+  }
+  protected convertQuote(q: QuoteRecord) {
+    if (q.visibility === 'Trash') {
+      this.toast.notify('Restore this quotation before converting it');
+      return;
+    }
+    if (q.invoice) {
+      this.toast.notify(`${q.id} is already linked to ${q.invoice}`);
+      return;
+    }
+    if (q.status !== 'Active') {
+      if (!confirm(`${q.id} is ${q.status}. Reactivate it and convert to an invoice?`)) return;
+      this.qs.patch(q.id, { status: 'Active' }, 'Reactivated for invoice conversion');
+    }
+    const invoice = this.qs.convert(q.id);
+    if (invoice) {
+      this.toast.notify(`${q.id} converted successfully · ${invoice}`);
+      this.closePreview();
+      this.chooseView('Converted');
+    }
+  }
+  protected act(q: QuoteRecord, action: string) {
+    this.menu.set(null);
+    this.drawerMore.set(false);
+    if (action === 'View') this.openPreview(q);
+    if (action === 'Edit') this.router.navigate(['/quotations', q.id, 'edit']);
+    if (action === 'Supplier order')
+      this.router.navigate(['/supplier-orders'], { queryParams: { source: q.id } });
+    if (action === 'Duplicate') {
+      const id = this.qs.duplicate(q.id);
+      this.toast.notify(`Duplicated as ${id}`);
+    }
+    if (action === 'Archive') {
+      this.qs.archive(q.id);
+      this.toast.notify('Quotation archived');
+      this.closePreview();
+    }
+    if (action === 'Delete' && confirm(`Move ${q.id} to Trash?`)) {
+      this.qs.trash(q.id);
+      this.toast.notify('Quotation moved to Trash');
+      this.closePreview();
+    }
+    if (action === 'Restore') {
+      this.qs.restore(q.id);
+      this.toast.notify('Quotation restored');
+      this.closePreview();
+    }
+    if (action === 'Convert') this.convertQuote(q);
+    if (action === 'PDF') this.toast.notify(`${q.id} PDF prepared`);
+    if (action === 'Email') {
+      this.qs.sendEmail(q.id, q.email, `Quotation ${q.id}`);
+      this.toast.notify(`Quotation emailed to ${q.email}`);
+    }
+    if (action === 'Print') window.print();
+  }
+  protected bulk(action: string) {
+    const count = this.selected().size;
+    for (const id of this.selected()) {
+      if (action === 'Archive') this.qs.archive(id);
+      if (action === 'Delete') this.qs.trash(id);
+      if (action === 'Restore') this.qs.restore(id);
+    }
+    this.toast.notify(`${action} applied to ${count} quotations`);
+    this.selected.set(new Set());
+  }
+  protected clearFilters() {
+    this.status.set('All');
+    this.converted.set('All');
+    this.email.set('All');
+    this.page.set(1);
+  }
+  protected clearSearch() {
+    this.query.set('');
+    this.searchOpen.set(false);
+    this.page.set(1);
+  }
+  protected goToPage(value: number) {
+    this.page.set(Math.min(this.pages(), Math.max(1, value)));
+  }
 }

@@ -23,6 +23,10 @@ import { Component, input } from '@angular/core';
   @case('check'){<circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/>}
   @case('warning'){<path d="M10.3 3.7 2.4 18a2 2 0 0 0 1.8 3h15.6a2 2 0 0 0 1.8-3L13.7 3.7a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/>}
   @case('file'){<path d="M6 3h8l4 4v14H6zM14 3v5h5"/><path d="M9 13h6M9 17h4"/>}
+  @case('supplier'){<path d="M3 7h18M5 7l1-4h12l1 4M5 7v14h14V7M8 11h8M8 15h3"/>}
+  @case('expenses'){<path d="M3 6h18v13H3zM3 10h18M7 15h4"/><path d="M17 3v6"/>}
+  @case('truck'){<path d="M3 5h11v12H3zM14 9h4l3 3v5h-7z"/><circle cx="7" cy="19" r="2"/><circle cx="18" cy="19" r="2"/>}
+  @case('plus'){<path d="M12 5v14M5 12h14"/>}
   @default{<circle cx="12" cy="12" r="9"/>}
 }</svg>`,styles:[`:host{display:inline-grid;place-items:center;line-height:0;flex:0 0 auto}`]})
 export class UiIcon{readonly name=input.required<string>();readonly size=input(20)}

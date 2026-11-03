@@ -1,23 +1,386 @@
 <section class="page-enter quote-workspace">
- <header class="quote-header"><div class="title-lockup"><p>⌂ &nbsp;›&nbsp; Sales &nbsp;›&nbsp; Quotations</p><h1>Quotations <span>{{viewCount('All')}}</span></h1></div><div class="header-tools">
-  <label class="quick-search" [class.open]="searchOpen() || query()" (mouseenter)="searchOpen.set(true)"><button type="button" aria-label="Search quotations" (click)="searchOpen.set(true)"><ui-icon name="search" [size]="17" /></button><input placeholder="Search quotations…" [ngModel]="query()" (focus)="searchOpen.set(true)" (ngModelChange)="query.set($event);page.set(1)">@if(query()){<button type="button" aria-label="Clear search" (click)="clearSearch()">×</button>}</label>
-  <div class="filter-anchor"><button class="icon-button filter-button" [class.active]="filtersOpen()" (click)="filtersOpen.set(!filtersOpen())" aria-label="Filter quotations">☷ @if(filterCount()){<b>{{filterCount()}}</b>}</button>@if(filtersOpen()){<div class="filter-panel"><div class="filter-head"><strong>Filters</strong><button (click)="filtersOpen.set(false)">×</button></div><label>Status<select class="field" [ngModel]="status()" (ngModelChange)="status.set($event)"><option>All</option><option>Active</option><option>Closed</option><option>Rejected</option></select></label><label>Conversion<select class="field" [ngModel]="converted()" (ngModelChange)="converted.set($event)"><option>All</option><option>Converted</option><option>Not converted</option></select></label><label>Email state<select class="field" [ngModel]="email()" (ngModelChange)="email.set($event)"><option>All</option><option>Sent</option><option>Not sent</option><option>Failed</option></select></label><div class="filter-actions"><button (click)="clearFilters()">Clear all</button><button class="apply" (click)="filtersOpen.set(false);page.set(1)">Apply filters</button></div></div>}</div>
-  <a class="icon-button" routerLink="/settings/quotations" aria-label="Quotation settings"><ui-icon name="settings" [size]="18" /></a><a class="new-quote" routerLink="/quotations/new"><span>＋</span><b>New quotation</b></a>
- </div></header>
- <nav class="workspace-tabs" aria-label="Quotation views">@for(v of views;track v){<button [class.active]="view()===v" (click)="chooseView(v)">{{v}}<span>{{viewCount(v)}}</span></button>}</nav>
- <article class="card list">
-  @if(selected().size){<div class="bulk"><b>{{selected().size}} selected</b>@if(view()==='Archived'||view()==='Trash'){<button (click)="bulk('Restore')">Restore</button>}@else{<button (click)="bulk('Archive')">Archive</button><button (click)="bulk('Delete')">Move to trash</button>}<button (click)="toast.notify('Bulk PDF package prepared')">Export PDFs</button></div>}
-  <div class="table-wrap"><table><thead><tr><th><input type="checkbox" [checked]="selected().size===visible().length&&visible().length>0" (change)="toggleAll()"></th><th>Reference</th><th>Customer</th><th>Created</th><th>Valid until</th><th>Total</th><th>Status</th><th>Email</th><th></th></tr></thead><tbody>
-   @for(q of visible();track q.id){<tr (click)="openPreview(q)" tabindex="0" (keydown.enter)="openPreview(q)"><td (click)="$event.stopPropagation()"><input type="checkbox" [checked]="selected().has(q.id)" (change)="toggle(q.id)"></td><td><button class="quote-ref" (click)="$event.stopPropagation();openPreview(q)">{{q.id}}</button>@if(q.invoice){<small>{{q.invoice}}</small>}</td><td><b>{{q.customer}}</b><small>{{q.items.length}} configured item{{q.items.length===1?'':'s'}}</small></td><td>{{q.created}}</td><td>{{q.validUntil}}</td><td><b>{{q.currency}} {{q.total.toLocaleString()}}</b></td><td (click)="$event.stopPropagation()"><select class="status-editor {{q.status.toLowerCase()}}" [ngModel]="q.status" (ngModelChange)="updateStatus(q,$event)" [disabled]="q.visibility==='Trash'||!!q.invoice"><option>Active</option><option>Closed</option><option>Rejected</option></select></td><td><span class="email {{q.emailState.toLowerCase().replace(' ','-')}}">{{q.emailState}}</span></td><td class="actions" (click)="$event.stopPropagation()"><button (click)="menu.set(menu()===q.id?null:q.id)" aria-label="Actions for {{q.id}}">•••</button>@if(menu()===q.id){<div class="menu">@for(a of (q.visibility==='Normal'?['View','Edit','Duplicate','PDF','Email','Convert','Archive','Delete']:['View','Restore']);track a){<button [disabled]="a==='Convert'&&!!q.invoice" (click)="act(q,a)">{{a}}</button>}</div>}</td></tr>}
-   @empty{<tr><td colspan="9" class="empty"><b>No quotations found</b><span>Try another view or clear the applied filters.</span><button (click)="clearFilters();clearSearch();chooseView('All')">Reset view</button></td></tr>}
-  </tbody></table></div>
-  <div class="mobile-cards">@for(q of visible();track q.id){<button class="quote-card" (click)="openPreview(q)"><span class="card-top"><b>{{q.id}}</b><i class="state {{q.status.toLowerCase()}}">{{q.status}}</i></span><strong>{{q.customer}}</strong><span class="card-meta"><span>{{q.created}}</span><b>{{q.currency}} {{q.total.toLocaleString()}}</b></span></button>}</div>
-  <footer><span>Showing {{visible().length}} of {{filtered().length}} results</span><div><button [disabled]="page()===1" (click)="goToPage(page()-1)">‹</button><button class="current">{{page()}}</button><button [disabled]="page()===pages()" (click)="goToPage(page()+1)">›</button></div></footer>
- </article>
+  <header class="quote-header">
+    <div class="title-lockup">
+      <p>Workspace &nbsp;›&nbsp; Quote</p>
+      <h1>Quote</h1>
+      <small>Keep every customer conversation moving with a clear view of your pipeline.</small>
+    </div>
+    <div class="header-tools">
+      <label
+        class="quick-search"
+        [class.open]="searchOpen() || query()"
+        (mouseenter)="searchOpen.set(true)"
+        ><button type="button" aria-label="Search quotations" (click)="searchOpen.set(true)">
+          <ui-icon name="search" [size]="17" /></button
+        ><input
+          placeholder="Search quotations…"
+          [ngModel]="query()"
+          (focus)="searchOpen.set(true)"
+          (ngModelChange)="query.set($event); page.set(1)"
+        />
+        @if (query()) {
+          <button type="button" aria-label="Clear search" (click)="clearSearch()">×</button>
+        }
+      </label>
+      <div class="filter-anchor">
+        <button
+          class="icon-button filter-button"
+          [class.active]="filtersOpen()"
+          (click)="filtersOpen.set(!filtersOpen())"
+          aria-label="Filter quotations"
+        >
+          ☷
+          @if (filterCount()) {
+            <b>{{ filterCount() }}</b>
+          }
+        </button>
+        @if (filtersOpen()) {
+          <div class="filter-panel">
+            <div class="filter-head">
+              <strong>Filters</strong><button (click)="filtersOpen.set(false)">×</button>
+            </div>
+            <label
+              >Status<select
+                class="field"
+                [ngModel]="status()"
+                (ngModelChange)="status.set($event)"
+              >
+                <option>All</option>
+                <option>Active</option>
+                <option>Closed</option>
+                <option>Rejected</option>
+              </select></label
+            ><label
+              >Conversion<select
+                class="field"
+                [ngModel]="converted()"
+                (ngModelChange)="converted.set($event)"
+              >
+                <option>All</option>
+                <option>Converted</option>
+                <option>Not converted</option>
+              </select></label
+            ><label
+              >Email state<select
+                class="field"
+                [ngModel]="email()"
+                (ngModelChange)="email.set($event)"
+              >
+                <option>All</option>
+                <option>Sent</option>
+                <option>Not sent</option>
+                <option>Failed</option>
+              </select></label
+            >
+            <div class="filter-actions">
+              <button (click)="clearFilters()">Clear all</button
+              ><button class="apply" (click)="filtersOpen.set(false); page.set(1)">
+                Apply filters
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+      <a class="icon-button" routerLink="/settings/quotations" aria-label="Quotation settings"
+        ><ui-icon name="settings" [size]="18" /></a
+      ><a class="new-quote" routerLink="/quotations/new"><span>＋</span><b>New quotation</b></a>
+    </div>
+  </header>
+  <section class="quote-metrics" aria-label="Quote summary">
+    <article>
+      <span><ui-icon name="quote" [size]="20" /></span>
+      <div>
+        <small>Total quotes</small><strong>{{ viewCount('All') }}</strong
+        ><em>+8.4% vs last month</em>
+      </div>
+    </article>
+    <article>
+      <span><b>€</b></span>
+      <div>
+        <small>Pipeline value</small><strong>€46,319</strong><em>Across active opportunities</em>
+      </div>
+    </article>
+    <article>
+      <span><ui-icon name="warning" [size]="20" /></span>
+      <div>
+        <small>Need attention</small><strong>{{ viewCount('Active') }}</strong
+        ><em>Quotes due this week</em>
+      </div>
+    </article>
+    <article>
+      <span><ui-icon name="reports" [size]="20" /></span>
+      <div><small>Conversion rate</small><strong>68.2%</strong><em>+12% vs last month</em></div>
+    </article>
+  </section>
+  <nav class="workspace-tabs" aria-label="Quotation views">
+    @for (v of views; track v) {
+      <button [class.active]="view() === v" (click)="chooseView(v)">
+        {{ v }}<span>{{ viewCount(v) }}</span>
+      </button>
+    }
+  </nav>
+  <article class="card list">
+    @if (selected().size) {
+      <div class="bulk">
+        <b>{{ selected().size }} selected</b>
+        @if (view() === 'Archived' || view() === 'Trash') {
+          <button (click)="bulk('Restore')">Restore</button>
+        } @else {
+          <button (click)="bulk('Archive')">Archive</button
+          ><button (click)="bulk('Delete')">Move to trash</button>
+        }
+        <button (click)="toast.notify('Bulk PDF package prepared')">Export PDFs</button>
+      </div>
+    }
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>
+              <input
+                type="checkbox"
+                [checked]="selected().size === visible().length && visible().length > 0"
+                (change)="toggleAll()"
+              />
+            </th>
+            <th>Reference</th>
+            <th>Customer</th>
+            <th>Created</th>
+            <th>Valid until</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Email</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (q of visible(); track q.id) {
+            <tr (click)="openPreview(q)" tabindex="0" (keydown.enter)="openPreview(q)">
+              <td (click)="$event.stopPropagation()">
+                <input type="checkbox" [checked]="selected().has(q.id)" (change)="toggle(q.id)" />
+              </td>
+              <td>
+                <button class="quote-ref" (click)="$event.stopPropagation(); openPreview(q)">
+                  {{ q.id }}
+                </button>
+                @if (q.invoice) {
+                  <small>{{ q.invoice }}</small>
+                }
+              </td>
+              <td>
+                <b>{{ q.customer }}</b
+                ><small
+                  >{{ q.items.length }} configured item{{ q.items.length === 1 ? '' : 's' }}</small
+                >
+              </td>
+              <td>{{ q.created }}</td>
+              <td>{{ q.validUntil }}</td>
+              <td>
+                <b>{{ q.currency }} {{ q.total.toLocaleString() }}</b>
+              </td>
+              <td (click)="$event.stopPropagation()">
+                <select
+                  class="status-editor {{ q.status.toLowerCase() }}"
+                  [ngModel]="q.status"
+                  (ngModelChange)="updateStatus(q, $event)"
+                  [disabled]="q.visibility === 'Trash' || !!q.invoice"
+                >
+                  <option>Active</option>
+                  <option>Closed</option>
+                  <option>Rejected</option>
+                </select>
+              </td>
+              <td>
+                <span class="email {{ q.emailState.toLowerCase().replace(' ', '-') }}">{{
+                  q.emailState
+                }}</span>
+              </td>
+              <td class="actions" (click)="$event.stopPropagation()">
+                <button
+                  (click)="menu.set(menu() === q.id ? null : q.id)"
+                  aria-label="Actions for {{ q.id }}"
+                >
+                  •••
+                </button>
+                @if (menu() === q.id) {
+                  <div class="menu">
+                    @for (
+                      a of q.visibility === 'Normal'
+                        ? [
+                            'View',
+                            'Edit',
+                            'Supplier order',
+                            'Duplicate',
+                            'PDF',
+                            'Email',
+                            'Convert',
+                            'Archive',
+                            'Delete',
+                          ]
+                        : ['View', 'Restore'];
+                      track a
+                    ) {
+                      <button [disabled]="a === 'Convert' && !!q.invoice" (click)="act(q, a)">
+                        {{ a }}
+                      </button>
+                    }
+                  </div>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="9" class="empty">
+                <b>No quotations found</b><span>Try another view or clear the applied filters.</span
+                ><button (click)="clearFilters(); clearSearch(); chooseView('All')">
+                  Reset view
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="mobile-cards">
+      @for (q of visible(); track q.id) {
+        <button class="quote-card" (click)="openPreview(q)">
+          <span class="card-top"
+            ><b>{{ q.id }}</b
+            ><i class="state {{ q.status.toLowerCase() }}">{{ q.status }}</i></span
+          ><strong>{{ q.customer }}</strong
+          ><span class="card-meta"
+            ><span>{{ q.created }}</span
+            ><b>{{ q.currency }} {{ q.total.toLocaleString() }}</b></span
+          >
+        </button>
+      }
+    </div>
+    <footer>
+      <span>Showing {{ visible().length }} of {{ filtered().length }} results</span>
+      <div>
+        <button [disabled]="page() === 1" (click)="goToPage(page() - 1)">‹</button
+        ><button class="current">{{ page() }}</button
+        ><button [disabled]="page() === pages()" (click)="goToPage(page() + 1)">›</button>
+      </div>
+    </footer>
+  </article>
 </section>
-@if(drawerQuote(); as q){<div class="drawer-scrim" (click)="closePreview()"></div><aside class="preview-drawer" aria-label="Quotation preview">
- <header><div><small>QUOTATION PREVIEW</small><h2>{{q.id}}</h2><span>Last updated {{q.created}}</span></div><button class="drawer-close" (click)="closePreview()" aria-label="Close preview">×</button></header>
- <div class="drawer-actions"><button class="primary" (click)="act(q,'Edit')">Edit</button><button (click)="act(q,'Print')">Print</button><button (click)="act(q,'PDF')">PDF</button><button (click)="act(q,'Email')">Email</button><button class="convert" [disabled]="!!q.invoice||q.visibility==='Trash'" (click)="convertQuote(q)">{{q.invoice?'Converted':'Convert to invoice'}}</button><div class="drawer-more"><button (click)="drawerMore.set(!drawerMore())">More ▾</button>@if(drawerMore()){<div class="menu"><button (click)="act(q,'Duplicate')">Duplicate</button><button (click)="act(q,'Archive')">Archive</button><button class="danger" (click)="act(q,'Delete')">Move to trash</button></div>}</div></div>
- <div class="drawer-scroll">@if(q.invoice){<div class="converted-banner"><b>Converted to invoice</b><span>{{q.invoice}}</span></div>}<section class="document-sheet"><div class="doc-brand"><div class="brand-mark">T</div><div><b>TITAN <em>ENGAGE</em></b><small>BUSINESS. BILLING. BEYOND.</small></div><div class="doc-kind"><h3>QUOTATION</h3><span>{{q.id}}</span></div></div><div class="doc-parties"><div><small>QUOTATION FOR</small><h3>{{q.customer}}</h3><p>{{q.email}}<br>Customer account</p></div><dl><dt>Issue date</dt><dd>{{q.created}}</dd><dt>Valid until</dt><dd>{{q.validUntil}}</dd><dt>Status</dt><dd>{{q.status}}</dd><dt>Currency</dt><dd>{{q.currency}}</dd></dl></div><div class="doc-lines"><div class="line-head"><span>DESCRIPTION</span><span>QTY</span><span>UNIT PRICE</span><span>AMOUNT</span></div>@for(item of q.items;track item.id){<div class="line-item"><div><b>{{item.name}}</b><p>{{item.description}}</p>@for(attr of item.attributes|keyvalue;track attr.key){<small>{{attr.key}}: {{attr.value}}</small>}</div><span>{{item.qty}}</span><span>{{q.currency}} {{item.price.toLocaleString()}}</span><b>{{q.currency}} {{(item.qty*item.price).toLocaleString()}}</b></div>}</div><div class="doc-summary"><div><small>NOTES</small><p>{{q.notes || 'Thank you for your business.'}}</p></div><dl><dt>Subtotal</dt><dd>{{q.currency}} {{q.total.toLocaleString()}}</dd><dt>Tax included</dt><dd>Calculated</dd><dt class="total">Total</dt><dd class="total">{{q.currency}} {{q.total.toLocaleString()}}</dd></dl></div></section>
- <section class="activity"><h3>Activity</h3>@for(event of q.audit;track event.id){<div><i></i><p><b>{{event.action}}</b><span>{{event.actor}} · {{event.at}}</span></p></div>}@empty{<p>No activity recorded yet.</p>}</section></div>
-</aside>}
+@if (drawerQuote(); as q) {
+  <div class="drawer-scrim" (click)="closePreview()"></div>
+  <aside class="preview-drawer" aria-label="Quotation preview">
+    <header>
+      <div>
+        <small>QUOTATION PREVIEW</small>
+        <h2>{{ q.id }}</h2>
+        <span>Last updated {{ q.created }}</span>
+      </div>
+      <button class="drawer-close" (click)="closePreview()" aria-label="Close preview">×</button>
+    </header>
+    <div class="drawer-actions">
+      <button class="primary" (click)="act(q, 'Edit')">Edit</button
+      ><button (click)="act(q, 'Print')">Print</button><button (click)="act(q, 'PDF')">PDF</button
+      ><button (click)="act(q, 'Email')">Email</button
+      ><button
+        class="convert"
+        [disabled]="!!q.invoice || q.visibility === 'Trash'"
+        (click)="convertQuote(q)"
+      >
+        {{ q.invoice ? 'Converted' : 'Convert to invoice' }}</button
+      ><button (click)="act(q, 'Supplier order')">Prepare supplier order</button>
+      <div class="drawer-more">
+        <button (click)="drawerMore.set(!drawerMore())">More ▾</button>
+        @if (drawerMore()) {
+          <div class="menu">
+            <button (click)="act(q, 'Duplicate')">Duplicate</button
+            ><button (click)="act(q, 'Archive')">Archive</button
+            ><button class="danger" (click)="act(q, 'Delete')">Move to trash</button>
+          </div>
+        }
+      </div>
+    </div>
+    <div class="drawer-scroll">
+      @if (q.invoice) {
+        <div class="converted-banner">
+          <b>Converted to invoice</b><span>{{ q.invoice }}</span>
+        </div>
+      }
+      <section class="document-sheet">
+        <div class="doc-brand">
+          <div class="brand-mark">T</div>
+          <div>
+            <b>TITAN <em>ENGAGE</em></b
+            ><small>BUSINESS. BILLING. BEYOND.</small>
+          </div>
+          <div class="doc-kind">
+            <h3>QUOTATION</h3>
+            <span>{{ q.id }}</span>
+          </div>
+        </div>
+        <div class="doc-parties">
+          <div>
+            <small>QUOTATION FOR</small>
+            <h3>{{ q.customer }}</h3>
+            <p>{{ q.email }}<br />Customer account</p>
+          </div>
+          <dl>
+            <dt>Issue date</dt>
+            <dd>{{ q.created }}</dd>
+            <dt>Valid until</dt>
+            <dd>{{ q.validUntil }}</dd>
+            <dt>Status</dt>
+            <dd>{{ q.status }}</dd>
+            <dt>Currency</dt>
+            <dd>{{ q.currency }}</dd>
+          </dl>
+        </div>
+        <div class="doc-lines">
+          <div class="line-head">
+            <span>DESCRIPTION</span><span>QTY</span><span>UNIT PRICE</span><span>AMOUNT</span>
+          </div>
+          @for (item of q.items; track item.id) {
+            <div class="line-item">
+              <div>
+                <b>{{ item.name }}</b>
+                <p>{{ item.description }}</p>
+                @for (attr of item.attributes | keyvalue; track attr.key) {
+                  <small>{{ attr.key }}: {{ attr.value }}</small>
+                }
+              </div>
+              <span>{{ item.qty }}</span
+              ><span>{{ q.currency }} {{ item.price.toLocaleString() }}</span
+              ><b>{{ q.currency }} {{ (item.qty * item.price).toLocaleString() }}</b>
+            </div>
+          }
+        </div>
+        <div class="doc-summary">
+          <div>
+            <small>NOTES</small>
+            <p>{{ q.notes || 'Thank you for your business.' }}</p>
+          </div>
+          <dl>
+            <dt>Subtotal</dt>
+            <dd>{{ q.currency }} {{ q.total.toLocaleString() }}</dd>
+            <dt>Tax included</dt>
+            <dd>Calculated</dd>
+            <dt class="total">Total</dt>
+            <dd class="total">{{ q.currency }} {{ q.total.toLocaleString() }}</dd>
+          </dl>
+        </div>
+      </section>
+      <section class="activity">
+        <h3>Activity</h3>
+        @for (event of q.audit; track event.id) {
+          <div>
+            <i></i>
+            <p>
+              <b>{{ event.action }}</b
+              ><span>{{ event.actor }} · {{ event.at }}</span>
+            </p>
+          </div>
+        } @empty {
+          <p>No activity recorded yet.</p>
+        }
+      </section>
+    </div>
+  </aside>
+}

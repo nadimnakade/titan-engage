@@ -1,0 +1,347 @@
+<section class="orders-page page-enter">
+  <header class="page-header">
+    <div>
+      <p>Workspace <span>›</span> Supplies</p>
+      <h1>Supplier Orders</h1>
+      <small>Consolidate purchasing requirements and create traceable supplier orders.</small>
+    </div>
+    <div class="header-actions">
+      <label class="search"
+        ><ui-icon name="search" [size]="19" /><input
+          placeholder="Search items, supplier or source…"
+          [ngModel]="query()"
+          (ngModelChange)="query.set($event)"
+          aria-label="Search supplier orders" /></label
+      ><button
+        class="icon-action"
+        (click)="filtersOpen.set(!filtersOpen())"
+        aria-label="Filter supplier orders"
+      >
+        <ui-icon name="filter" [size]="19" /></button
+      ><button class="primary-action" (click)="openReview()">
+        <ui-icon name="plus" [size]="19" />Create purchase order
+      </button>
+    </div>
+  </header>
+  @if (source) {
+    <div class="source-banner">
+      <ui-icon name="check" [size]="20" /><span
+        ><b>{{ source }} is ready to import.</b> Select its procureable items below; labour remains
+        excluded by default.</span
+      ><span class="source-actions"
+        ><button (click)="importOpen.set(true)">Select items</button
+        ><button (click)="source = null">Dismiss</button></span
+      >
+    </div>
+  }
+  <section class="metrics" aria-label="Supplier order summary">
+    <article>
+      <span class="metric-icon teal"><ui-icon name="supplier" [size]="21" /></span>
+      <div>
+        <small>Pending requirements</small><strong>{{ count('Pending') }}</strong
+        ><em>Across 3 suppliers</em>
+      </div>
+    </article>
+    <article>
+      <span class="metric-icon blue"><ui-icon name="file" [size]="21" /></span>
+      <div>
+        <small>Draft orders</small><strong>{{ count('Draft') }}</strong
+        ><em>Ready for review</em>
+      </div>
+    </article>
+    <article>
+      <span class="metric-icon amber"><ui-icon name="truck" [size]="21" /></span>
+      <div>
+        <small>Sent orders</small><strong>{{ count('Sent') }}</strong
+        ><em>Awaiting confirmation</em>
+      </div>
+    </article>
+    <article>
+      <span class="metric-icon mint"><ui-icon name="check" [size]="21" /></span>
+      <div><small>Outstanding quantity</small><strong>58</strong><em>Units to procure</em></div>
+    </article>
+  </section>
+  <article class="queue-card">
+    <nav class="tabs" aria-label="Supplier order views">
+      @for (v of views; track v) {
+        <button [class.active]="view() === v" (click)="chooseView(v)">
+          {{ v }} <span>{{ count(v) }}</span>
+        </button>
+      }
+      <button class="view-control"><ui-icon name="menu" [size]="16" /> View</button>
+    </nav>
+    @if (filtersOpen()) {
+      <div class="filter-bar">
+        <label
+          >Supplier<select [ngModel]="supplier()" (ngModelChange)="supplier.set($event)">
+            @for (s of suppliers; track s) {
+              <option>{{ s }}</option>
+            }
+          </select></label
+        ><label
+          >Source<select>
+            <option>All sources</option>
+            <option>Quotation</option>
+            <option>Invoice</option>
+          </select></label
+        ><button (click)="reset()">Reset filters</button>
+      </div>
+    }
+    @if (selected().size) {
+      <div class="selection-bar">
+        <b>{{ selected().size }} selected</b><span>{{ selectedSupplier().join(', ') }}</span
+        ><button (click)="openReview()">Create purchase order</button
+        ><button (click)="clearSelection()">Clear</button>
+      </div>
+    }
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>
+              <input
+                type="checkbox"
+                [checked]="selected().size === filtered().length && filtered().length > 0"
+                (change)="toggleAll()"
+                aria-label="Select all visible requirements"
+              />
+            </th>
+            <th>Supplier / item</th>
+            <th>Specifications</th>
+            <th>Remaining</th>
+            <th>Source</th>
+            <th>Added</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of filtered(); track r.id) {
+            <tr>
+              <td>
+                <input
+                  type="checkbox"
+                  [checked]="selected().has(r.id)"
+                  (change)="toggle(r.id)"
+                  aria-label="Select {{ r.item }}"
+                />
+              </td>
+              <td>
+                <select
+                  class="supplier-editor"
+                  aria-label="Supplier for {{ r.item }}"
+                  [ngModel]="r.supplier"
+                  (ngModelChange)="assignSupplier(r.id, $event)"
+                >
+                  @for (s of suppliers.slice(1); track s) {
+                    <option>{{ s }}</option>
+                  }</select
+                ><b>{{ r.item }}</b
+                ><small>{{ r.customer }}</small>
+              </td>
+              <td>{{ r.specs }}</td>
+              <td>
+                <b>{{ r.required - r.queued }}</b
+                ><small>{{ r.queued }} already allocated</small>
+              </td>
+              <td>
+                <a [routerLink]="r.source.startsWith('Q-') ? '/quotations' : '/invoices'">{{
+                  r.source
+                }}</a>
+              </td>
+              <td>{{ r.added }}</td>
+              <td>
+                <span class="status {{ r.status.toLowerCase() }}">{{ r.status }}</span>
+              </td>
+              <td><button class="more" aria-label="Actions for {{ r.item }}">•••</button></td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="8" class="empty">
+                <b>No matching requirements</b
+                ><span>Clear filters to see the pending supplier queue.</span
+                ><button (click)="reset()">Reset view</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="mobile-list">
+      @for (r of filtered(); track r.id) {
+        <article class="order-card" [class.selected]="selected().has(r.id)">
+          <header>
+            <label
+              ><input
+                type="checkbox"
+                [checked]="selected().has(r.id)"
+                (change)="toggle(r.id)"
+              /><select
+                aria-label="Supplier for {{ r.item }}"
+                [ngModel]="r.supplier"
+                (ngModelChange)="assignSupplier(r.id, $event)"
+              >
+                @for (s of suppliers.slice(1); track s) {
+                  <option>{{ s }}</option>
+                }
+              </select></label
+            ><span class="status {{ r.status.toLowerCase() }}">{{ r.status }}</span>
+          </header>
+          <h3>{{ r.item }}</h3>
+          <p>{{ r.specs }}</p>
+          <dl>
+            <dt>Remaining</dt>
+            <dd>{{ r.required - r.queued }}</dd>
+            <dt>Source</dt>
+            <dd>
+              <a [routerLink]="r.source.startsWith('Q-') ? '/quotations' : '/invoices'">{{
+                r.source
+              }}</a>
+            </dd>
+            <dt>Customer</dt>
+            <dd>{{ r.customer }}</dd>
+          </dl>
+        </article>
+      }
+    </div>
+    <footer>
+      <span>Showing {{ filtered().length }} of {{ requirements().length }} requirements</span>
+      <div>
+        <button disabled>‹</button><button class="current">1</button><button disabled>›</button>
+      </div>
+    </footer>
+  </article>
+</section>
+@if (importOpen() && source) {
+  <div class="modal-scrim" (click)="importOpen.set(false)"></div>
+  <section class="import-panel" role="dialog" aria-modal="true" aria-labelledby="import-title">
+    <header>
+      <div>
+        <small>ORDER OF MATERIALS</small>
+        <h2 id="import-title">Import items from {{ source }}</h2>
+        <span>{{ sourceCustomer() }} · Only physical items are enabled</span>
+      </div>
+      <button (click)="importOpen.set(false)" aria-label="Close item import">×</button>
+    </header>
+    <div class="import-content">
+      <div class="import-note">
+        <ui-icon name="check" [size]="18" />Previously imported quantities are locked to prevent
+        duplicate ordering.
+      </div>
+      @for (item of sourceItems(); track item.id) {
+        <article class="import-item" [class.disabled]="!item.procureable || !available(item)">
+          <label class="import-check"
+            ><input
+              type="checkbox"
+              [checked]="importSelected().has(item.id)"
+              [disabled]="!item.procureable || !available(item)"
+              (change)="toggleImport(item)"
+            /><span
+              ><b>{{ item.name }}</b
+              ><small>{{ item.description }}</small></span
+            ></label
+          >
+          <div class="import-controls">
+            <label
+              >Quantity<input
+                type="number"
+                min="1"
+                [max]="available(item)"
+                [disabled]="!importSelected().has(item.id)"
+                [ngModel]="importQuantities()[item.id] || available(item)"
+                (ngModelChange)="setImportQuantity(item.id, $event)" /></label
+            ><label
+              >Supplier<select
+                [disabled]="!importSelected().has(item.id)"
+                [ngModel]="importSuppliers()[item.id] || item.supplier"
+                (ngModelChange)="setImportSupplier(item.id, $event)"
+              >
+                @for (s of suppliers.slice(1); track s) {
+                  <option>{{ s }}</option>
+                }
+              </select></label
+            >
+          </div>
+          <footer>
+            <span>{{ item.qty }} in source</span
+            ><span>{{ alreadyImported(item) }} already imported</span
+            ><b>{{ available(item) }} available</b>
+          </footer>
+          @if (!item.procureable) {
+            <em>Service/labour is excluded from procurement</em>
+          }
+          @if (item.procureable && !available(item)) {
+            <em>Fully imported — duplicate ordering prevented</em>
+          }
+        </article>
+      } @empty {
+        <div class="empty">
+          <b>Source document not found</b
+          ><span>Return to Quotes or Invoices and choose Prepare supplier order.</span>
+        </div>
+      }
+    </div>
+    <footer>
+      <button (click)="importOpen.set(false)">Cancel</button
+      ><button class="send" [disabled]="!importSelected().size" (click)="importItems()">
+        Add {{ importSelected().size }} item{{ importSelected().size === 1 ? '' : 's' }} to supplier
+        queue
+      </button>
+    </footer>
+  </section>
+}
+@if (reviewOpen()) {
+  <div class="modal-scrim" (click)="reviewOpen.set(false)"></div>
+  <section class="po-panel" role="dialog" aria-modal="true" aria-labelledby="po-title">
+    <header>
+      <div>
+        <small>DRAFT PURCHASE ORDER</small>
+        <h2 id="po-title">PO-2026-0019</h2>
+        <span>{{ selectedSupplier()[0] }}</span>
+      </div>
+      <button (click)="reviewOpen.set(false)" aria-label="Close purchase order review">×</button>
+    </header>
+    <div class="po-content">
+      <div class="po-meta">
+        <label
+          >Supplier<select>
+            <option>{{ selectedSupplier()[0] }}</option>
+          </select></label
+        ><label
+          >Deliver to<select>
+            <option>Acme Workshop</option>
+            <option>Customer site</option>
+          </select></label
+        ><label>Required date<input type="date" value="2026-11-15" /></label>
+      </div>
+      <div class="po-lines">
+        <div class="po-head">
+          <span>Item / specifications</span><span>Qty</span><span>Buy cost</span>
+        </div>
+        @for (r of selectedRows(); track r.id) {
+          <div>
+            <span
+              ><b>{{ r.item }}</b
+              ><small>{{ r.specs }} · {{ r.source }}</small></span
+            ><input type="number" [value]="r.required - r.queued" min="1" /><label
+              ><span>USD</span><input type="number" value="0" min="0"
+            /></label>
+          </div>
+        }
+      </div>
+      <label class="delivery-note"
+        >Delivery instructions<textarea rows="3">
+Deliver to workshop reception. Quote PO reference on all packages.</textarea>
+      </label>
+      <div class="trace-note">
+        <ui-icon name="check" [size]="18" />Customer selling prices are excluded. Source allocations
+        remain traceable.
+      </div>
+    </div>
+    <footer>
+      <button (click)="toast.notify('Purchase order PDF preview opened')">Preview PDF</button
+      ><button (click)="reviewOpen.set(false)">Cancel</button
+      ><button class="send" (click)="createDraft()">Create draft order</button>
+    </footer>
+  </section>
+}

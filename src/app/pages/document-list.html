@@ -1,12 +1,170 @@
 <section class="page-enter document-list-page">
-  <header class="list-header"><div class="title-lockup"><p>Sales <span>›</span> {{title}}</p><h1>{{title}} <span>{{viewCount('All')}}</span></h1></div><div class="header-tools"><label class="quick-search"><ui-icon name="search" [size]="18"/><input aria-label="Search {{title.toLowerCase()}}" placeholder="Search {{title.toLowerCase()}}…" [value]="query()" (input)="query.set($any($event.target).value);page.set(1)"></label><button class="icon-button" type="button" aria-label="Filter {{title.toLowerCase()}}"><ui-icon name="filter" [size]="18"/></button><a class="new-document" [routerLink]="kind==='invoice'?'/invoices/new':'/quotations/new'"><span>+</span> New {{singular.toLowerCase()}}</a></div></header>
-  <nav class="workspace-tabs" aria-label="{{singular}} views">@for(v of views;track v){<button [class.active]="status()===v" (click)="chooseView(v)">{{v}} <span>{{viewCount(v)}}</span></button>}</nav>
+  <header class="list-header">
+    <div class="title-lockup">
+      <p>Sales <span>›</span> {{ title }}</p>
+      <h1>
+        {{ title }} <span>{{ viewCount('All') }}</span>
+      </h1>
+      <small>Track customer billing, payment progress and outstanding balances.</small>
+    </div>
+    <div class="header-tools">
+      <label class="quick-search"
+        ><ui-icon name="search" [size]="18" /><input
+          aria-label="Search {{ title.toLowerCase() }}"
+          placeholder="Search {{ title.toLowerCase() }}…"
+          [value]="query()"
+          (input)="query.set($any($event.target).value); page.set(1)" /></label
+      ><button class="icon-button" type="button" aria-label="Filter {{ title.toLowerCase() }}">
+        <ui-icon name="filter" [size]="18" /></button
+      ><a
+        class="new-document"
+        [routerLink]="kind === 'invoice' ? '/invoices/new' : '/quotations/new'"
+        ><span>+</span> New {{ singular.toLowerCase() }}</a
+      >
+    </div>
+  </header>
+  <section class="invoice-metrics" aria-label="Invoice summary">
+    <article>
+      <span><ui-icon name="invoice" [size]="20" /></span>
+      <div>
+        <small>Total invoices</small><strong>{{ viewCount('All') }}</strong
+        ><em>+9.2% this month</em>
+      </div>
+    </article>
+    <article>
+      <span><b>$</b></span>
+      <div>
+        <small>Total invoiced</small><strong>USD {{ pendingTotal().toLocaleString() }}</strong
+        ><em>Across current view</em>
+      </div>
+    </article>
+    <article>
+      <span><ui-icon name="payment" [size]="20" /></span>
+      <div>
+        <small>Paid invoices</small><strong>{{ viewCount('Paid') }}</strong
+        ><em>Payments reconciled</em>
+      </div>
+    </article>
+    <article>
+      <span><ui-icon name="warning" [size]="20" /></span>
+      <div>
+        <small>Need attention</small><strong>{{ viewCount('Overdue') }}</strong
+        ><em>Overdue invoices</em>
+      </div>
+    </article>
+  </section>
+  <nav class="workspace-tabs" aria-label="{{ singular }} views">
+    @for (v of views; track v) {
+      <button [class.active]="status() === v" (click)="chooseView(v)">
+        {{ v }} <span>{{ viewCount(v) }}</span>
+      </button>
+    }
+  </nav>
   <article class="list-card">
-    <div class="table-wrap"><table><thead><tr><th><input type="checkbox" aria-label="Select all"></th><th>Reference</th><th>Customer</th><th>Issue date</th><th>Due date</th><th>Total</th><th>Outstanding</th><th>Status</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>
-      @for(d of visible();track d.id){<tr><td><input type="checkbox" aria-label="Select {{d.id}}"></td><td><a routerLink="/invoices/new">{{d.id}}</a></td><td><div class="customer"><span>{{d.customer.slice(0,2).toUpperCase()}}</span><b>{{d.customer}}</b></div></td><td>{{d.date}}</td><td>{{d.due}}</td><td><b>USD {{d.total.toLocaleString()}}</b></td><td><b>USD {{(d.total-d.paid).toLocaleString()}}</b></td><td><span class="status status-{{d.status.toLowerCase().replace(' ','-')}}">{{d.status}}</span></td><td class="actions"><button type="button" (click)="menu.set(menu()===d.id?null:d.id)" aria-label="Actions for {{d.id}}">•••</button>@if(menu()===d.id){<div class="action-menu"><a routerLink="/invoices/new">Edit</a><button (click)="download(d.id);menu.set(null)">Download PDF</button>@if(d.status==='Draft'){<button class="danger" (click)="remove(d.id);menu.set(null)">Delete draft</button>}</div>}</td></tr>}
-      @empty{<tr><td colspan="9" class="empty"><b>No invoices found</b><span>Try another view or search term.</span><button (click)="query.set('');chooseView('All')">Reset view</button></td></tr>}
-    </tbody></table></div>
-    <div class="mobile-cards">@for(d of visible();track d.id){<a class="document-card" routerLink="/invoices/new"><span><b>{{d.id}}</b><i class="status status-{{d.status.toLowerCase().replace(' ','-')}}">{{d.status}}</i></span><strong>{{d.customer}}</strong><small>{{d.date}} · Due {{d.due}}</small><em>USD {{d.total.toLocaleString()}}</em></a>}</div>
-    <footer><span>Showing {{visible().length}} of {{filtered().length}} results</span><div><button [disabled]="page()===1" (click)="goToPage(page()-1)" aria-label="Previous page">‹</button><button class="current">{{page()}}</button><button [disabled]="page()===pages()" (click)="goToPage(page()+1)" aria-label="Next page">›</button></div></footer>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th><input type="checkbox" aria-label="Select all" /></th>
+            <th>Reference</th>
+            <th>Customer</th>
+            <th>Issue date</th>
+            <th>Due date</th>
+            <th>Total</th>
+            <th>Outstanding</th>
+            <th>Status</th>
+            <th><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (d of visible(); track d.id) {
+            <tr>
+              <td><input type="checkbox" aria-label="Select {{ d.id }}" /></td>
+              <td>
+                <a routerLink="/invoices/new">{{ d.id }}</a>
+              </td>
+              <td>
+                <div class="customer">
+                  <span>{{ d.customer.slice(0, 2).toUpperCase() }}</span
+                  ><b>{{ d.customer }}</b>
+                </div>
+              </td>
+              <td>{{ d.date }}</td>
+              <td>{{ d.due }}</td>
+              <td>
+                <b>USD {{ d.total.toLocaleString() }}</b>
+              </td>
+              <td>
+                <b>USD {{ (d.total - d.paid).toLocaleString() }}</b>
+              </td>
+              <td>
+                <span class="status status-{{ d.status.toLowerCase().replace(' ', '-') }}">{{
+                  d.status
+                }}</span>
+              </td>
+              <td class="actions">
+                <button
+                  type="button"
+                  (click)="menu.set(menu() === d.id ? null : d.id)"
+                  aria-label="Actions for {{ d.id }}"
+                >
+                  •••
+                </button>
+                @if (menu() === d.id) {
+                  <div class="action-menu">
+                    <a routerLink="/invoices/new">Edit</a>
+                    <a routerLink="/supplier-orders" [queryParams]="{ source: d.id }"
+                      >Prepare supplier order</a
+                    >
+                    <button (click)="download(d.id); menu.set(null)">Download PDF</button>
+                    @if (d.status === 'Draft') {
+                      <button class="danger" (click)="remove(d.id); menu.set(null)">
+                        Delete draft
+                      </button>
+                    }
+                  </div>
+                }
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="9" class="empty">
+                <b>No invoices found</b><span>Try another view or search term.</span
+                ><button (click)="query.set(''); chooseView('All')">Reset view</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    <div class="mobile-cards">
+      @for (d of visible(); track d.id) {
+        <a class="document-card" routerLink="/invoices/new"
+          ><span
+            ><b>{{ d.id }}</b
+            ><i class="status status-{{ d.status.toLowerCase().replace(' ', '-') }}">{{
+              d.status
+            }}</i></span
+          ><strong>{{ d.customer }}</strong
+          ><small>{{ d.date }} · Due {{ d.due }}</small
+          ><em>USD {{ d.total.toLocaleString() }}</em></a
+        >
+      }
+    </div>
+    <footer>
+      <span>Showing {{ visible().length }} of {{ filtered().length }} results</span>
+      <div>
+        <button [disabled]="page() === 1" (click)="goToPage(page() - 1)" aria-label="Previous page">
+          ‹</button
+        ><button class="current">{{ page() }}</button
+        ><button
+          [disabled]="page() === pages()"
+          (click)="goToPage(page() + 1)"
+          aria-label="Next page"
+        >
+          ›
+        </button>
+      </div>
+    </footer>
   </article>
 </section>
