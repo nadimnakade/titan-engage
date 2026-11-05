@@ -507,7 +507,7 @@ input:focus-visible {
     display: none;
   }
   .workspace-tabs {
-    margin-inline: -16px;
+    margin-inline: -14px;
     padding-left: 12px;
   }
   .list-card {

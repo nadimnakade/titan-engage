@@ -1,26 +1,244 @@
 <section class="document-workspace page-enter">
   <header class="document-header">
-    <div class="title-lockup"><p>Sales <span>›</span> {{title}}s <span>›</span> Create</p><div class="title-row"><button class="back-button" type="button" (click)="back()" aria-label="Back to {{title.toLowerCase()}}s">‹</button><div><h1>New {{title}}</h1><small>Build and preview your {{title.toLowerCase()}} in one place.</small></div></div></div>
-    <div class="header-actions"><span class="save-state" aria-live="polite">{{saved()?'Saved':'Draft'}}</span><button class="button secondary" type="button" (click)="save()">Save draft</button><button class="button primary" type="button" (click)="send()">Send {{title.toLowerCase()}}</button></div>
+    <div class="title-lockup">
+      <p>Sales <span>›</span> {{ title }}s <span>›</span> {{ isExisting ? 'View' : 'Create' }}</p>
+      <div class="title-row">
+        <button
+          class="back-button"
+          type="button"
+          (click)="back()"
+          aria-label="Back to {{ title.toLowerCase() }}s"
+        >
+          ‹
+        </button>
+        <div>
+          <h1>{{ isExisting ? documentId : 'New ' + title }}</h1>
+          <small>{{
+            isExisting
+              ? 'Source document and order items remain linked.'
+              : 'Build and preview your ' + title.toLowerCase() + ' in one place.'
+          }}</small>
+        </div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <span class="save-state" aria-live="polite">{{ saved() ? 'Saved' : 'Draft' }}</span
+      ><button class="button secondary" type="button" (click)="save()">Save draft</button
+      ><button class="button primary" type="button" (click)="send()">
+        Send {{ title.toLowerCase() }}
+      </button>
+    </div>
   </header>
   <form [formGroup]="form" class="document-stage">
-    <div class="stage-toolbar" aria-label="Document tools"><div><span class="status-dot"></span><b>Editable document</b><small>Changes appear instantly</small></div><div><button type="button" (click)="download()"><ui-icon name="download" [size]="18" /> PDF preview</button><span class="zoom">100%</span></div></div>
+    <div class="stage-toolbar" aria-label="Document tools">
+      <div>
+        <span class="status-dot"></span><b>Editable document</b
+        ><small>Changes appear instantly</small>
+      </div>
+      <div>
+        <button type="button" (click)="download()">
+          <ui-icon name="download" [size]="18" /> PDF preview</button
+        ><span class="zoom">100%</span>
+      </div>
+    </div>
     <article class="editable-paper">
-      <header class="paper-header"><div class="paper-brand"><span class="brand-mark">T</span><div><b>TITAN <i>ENGAGE</i></b><small>BUSINESS. BILLING. BEYOND.</small></div></div><div class="document-identity"><h2>{{title}}</h2><label><span class="sr-only">{{title}} number</span><input formControlName="number" aria-label="{{title}} number"></label></div></header>
+      <header class="paper-header">
+        <div class="paper-brand">
+          <span class="brand-mark">T</span>
+          <div>
+            <b>TITAN <i>ENGAGE</i></b
+            ><small>BUSINESS. BILLING. BEYOND.</small>
+          </div>
+        </div>
+        <div class="document-identity">
+          <h2>{{ title }}</h2>
+          <label
+            ><span class="sr-only">{{ title }} number</span
+            ><input formControlName="number" aria-label="{{ title }} number"
+          /></label>
+        </div>
+      </header>
       <section class="party-meta">
-        <div class="customer-block"><label><span>{{kind==='invoice'?'Bill to':'Quote for'}}</span><select formControlName="customer">@for(c of customers;track c){<option>{{c}}</option>}</select></label><p>455 Innovation Drive<br>London, United Kingdom<br>billing&#64;globaltech.demo</p><button type="button" (click)="store.notify('New customer dialog opened')">+ Add new customer</button></div>
-        <div class="meta-fields"><label><span>{{title}} date</span><input type="date" formControlName="date"></label><label><span>{{kind==='invoice'?'Due date':'Valid until'}}</span><input type="date" formControlName="due"></label><label><span>Reference</span><input formControlName="reference"></label><label><span>Currency</span><select formControlName="currency"><option>USD</option><option>EUR</option><option>GBP</option><option>INR</option></select></label></div>
+        <div class="customer-block">
+          <label
+            ><span>{{ kind === 'invoice' ? 'Bill to' : 'Quote for' }}</span
+            ><select formControlName="customer">
+              @for (c of customers; track c) {
+                <option>{{ c }}</option>
+              }
+            </select></label
+          >
+          <p>455 Innovation Drive<br />London, United Kingdom<br />billing&#64;globaltech.demo</p>
+          <button type="button" (click)="store.notify('New customer dialog opened')">
+            + Add new customer
+          </button>
+        </div>
+        <div class="meta-fields">
+          <label
+            ><span>{{ title }} date</span><input type="date" formControlName="date" /></label
+          ><label
+            ><span>{{ kind === 'invoice' ? 'Due date' : 'Valid until' }}</span
+            ><input type="date" formControlName="due" /></label
+          ><label><span>Reference</span><input formControlName="reference" /></label
+          ><label
+            ><span>Currency</span
+            ><select formControlName="currency">
+              <option>USD</option>
+              <option>EUR</option>
+              <option>GBP</option>
+              <option>INR</option>
+            </select></label
+          >
+        </div>
       </section>
       <section class="line-editor" formArrayName="items" aria-labelledby="items-title">
-        <div class="line-heading" id="items-title"><span>Item and description</span><span>Quantity</span><span>Rate</span><span>Discount</span><span>Amount</span><span></span></div>
-        @for(item of items.controls;track item;let i=$index){<div class="editable-line" [formGroupName]="i"><div class="item-copy"><input class="item-name" formControlName="name" aria-label="Item {{i+1}} name"><input class="item-description" formControlName="description" aria-label="Item {{i+1}} description"></div><input class="numeric" type="number" min=".01" step=".01" formControlName="qty" aria-label="Item {{i+1}} quantity"><div class="money-input"><span>{{form.controls.currency.value}}</span><input class="numeric" type="number" min="0" step=".01" formControlName="price" aria-label="Item {{i+1}} rate"></div><div class="percent-input"><input class="numeric" type="number" min="0" max="100" formControlName="discount" aria-label="Item {{i+1}} discount"><span>%</span></div><b class="line-total">{{((item.value.qty||0)*(item.value.price||0)*(1-(item.value.discount||0)/100))|currency:form.controls.currency.value}}</b><button type="button" class="remove-line" (click)="removeItem(i)" aria-label="Remove {{item.value.name}}">×</button></div>}
+        <div class="line-heading" id="items-title">
+          <span>Item and description</span><span>Quantity</span><span>Rate</span
+          ><span>Discount</span><span>Amount</span><span></span>
+        </div>
+        @for (item of items.controls; track item; let i = $index) {
+          <div class="editable-line" [formGroupName]="i">
+            <div class="item-copy">
+              <input
+                class="item-name"
+                formControlName="name"
+                aria-label="Item {{ i + 1 }} name"
+              /><input
+                class="item-description"
+                formControlName="description"
+                aria-label="Item {{ i + 1 }} description"
+              />
+            </div>
+            <input
+              class="numeric"
+              type="number"
+              min=".01"
+              step=".01"
+              formControlName="qty"
+              aria-label="Item {{ i + 1 }} quantity"
+            />
+            <div class="money-input">
+              <span>{{ form.controls.currency.value }}</span
+              ><input
+                class="numeric"
+                type="number"
+                min="0"
+                step=".01"
+                formControlName="price"
+                aria-label="Item {{ i + 1 }} rate"
+              />
+            </div>
+            <div class="percent-input">
+              <input
+                class="numeric"
+                type="number"
+                min="0"
+                max="100"
+                formControlName="discount"
+                aria-label="Item {{ i + 1 }} discount"
+              /><span>%</span>
+            </div>
+            <b class="line-total">{{
+              (item.value.qty || 0) *
+                (item.value.price || 0) *
+                (1 - (item.value.discount || 0) / 100) | currency: form.controls.currency.value
+            }}</b
+            ><button
+              type="button"
+              class="remove-line"
+              (click)="removeItem(i)"
+              aria-label="Remove {{ item.value.name }}"
+            >
+              ×
+            </button>
+          </div>
+        }
       </section>
-      <div class="line-actions"><div class="catalog-wrap"><button type="button" class="add-line primary-add" (click)="productMenu.set(!productMenu())" [attr.aria-expanded]="productMenu()">+ Add item</button>@if(productMenu()){<div class="product-menu"><strong>Product catalogue</strong>@for(p of products;track p[0]){<button type="button" (click)="addItem(p)"><span><b>{{p[0]}}</b><small>{{p[1]}}</small></span><em>{{p[2]|currency:form.controls.currency.value}}</em></button>}</div>}</div><button type="button" class="add-line" (click)="addItem()">+ Add custom row</button></div>
+      <div class="line-actions">
+        <div class="catalog-wrap">
+          <button
+            type="button"
+            class="add-line primary-add"
+            (click)="productMenu.set(!productMenu())"
+            [attr.aria-expanded]="productMenu()"
+          >
+            + Add item
+          </button>
+          @if (productMenu()) {
+            <div class="product-menu">
+              <strong>Product catalogue</strong>
+              @for (p of products; track p[0]) {
+                <button type="button" (click)="addItem(p)">
+                  <span
+                    ><b>{{ p[0] }}</b
+                    ><small>{{ p[1] }}</small></span
+                  ><em>{{ p[2] | currency: form.controls.currency.value }}</em>
+                </button>
+              }
+            </div>
+          }
+        </div>
+        <button type="button" class="add-line" (click)="addItem()">+ Add custom row</button>
+      </div>
       <section class="document-bottom">
-        <div class="notes-area"><label><span>Notes</span><textarea rows="3" formControlName="notes"></textarea></label><label><span>Terms and conditions</span><textarea rows="3" formControlName="terms"></textarea></label></div>
-        <div class="totals-area"><label class="discount-row"><span>Document discount</span><span><input type="number" min="0" max="100" formControlName="discount">%</span></label><div class="tax-toggle"><label><input type="checkbox" formControlName="taxEnabled"><span><b>Enable Tax</b><small>Tax is off by default</small></span></label>@if(form.controls.taxEnabled.value){<label class="tax-rate"><span>Tax rate</span><select formControlName="taxRate"><option [ngValue]="20">VAT 20%</option><option [ngValue]="15">VAT 15%</option><option [ngValue]="10">GST 10%</option><option [ngValue]="5">VAT 5%</option><option [ngValue]="0">Zero rated 0%</option></select></label>}</div><dl><dt>Subtotal</dt><dd>{{subtotal()/100|currency:form.controls.currency.value}}</dd>@if(lineDiscount()||documentDiscount()){<dt>Discount</dt><dd>− {{(lineDiscount()+documentDiscount())/100|currency:form.controls.currency.value}}</dd>}@if(form.controls.taxEnabled.value){<dt>Tax ({{form.controls.taxRate.value}}%)</dt><dd>{{tax()/100|currency:form.controls.currency.value}}</dd>}<dt class="grand">Total</dt><dd class="grand">{{total()/100|currency:form.controls.currency.value}}</dd></dl></div>
+        <div class="notes-area">
+          <label><span>Notes</span><textarea rows="3" formControlName="notes"></textarea></label
+          ><label
+            ><span>Terms and conditions</span><textarea rows="3" formControlName="terms"></textarea>
+          </label>
+        </div>
+        <div class="totals-area">
+          <label class="discount-row"
+            ><span>Document discount</span
+            ><span
+              ><input type="number" min="0" max="100" formControlName="discount" />%</span
+            ></label
+          >
+          <div class="tax-toggle">
+            <label
+              ><input type="checkbox" formControlName="taxEnabled" /><span
+                ><b>Enable Tax</b><small>Tax is off by default</small></span
+              ></label
+            >
+            @if (form.controls.taxEnabled.value) {
+              <label class="tax-rate"
+                ><span>Tax rate</span
+                ><select formControlName="taxRate">
+                  <option [ngValue]="20">VAT 20%</option>
+                  <option [ngValue]="15">VAT 15%</option>
+                  <option [ngValue]="10">GST 10%</option>
+                  <option [ngValue]="5">VAT 5%</option>
+                  <option [ngValue]="0">Zero rated 0%</option>
+                </select></label
+              >
+            }
+          </div>
+          <dl>
+            <dt>Subtotal</dt>
+            <dd>{{ subtotal() / 100 | currency: form.controls.currency.value }}</dd>
+            @if (lineDiscount() || documentDiscount()) {
+              <dt>Discount</dt>
+              <dd>
+                −
+                {{
+                  (lineDiscount() + documentDiscount()) / 100
+                    | currency: form.controls.currency.value
+                }}
+              </dd>
+            }
+            @if (form.controls.taxEnabled.value) {
+              <dt>Tax ({{ form.controls.taxRate.value }}%)</dt>
+              <dd>{{ tax() / 100 | currency: form.controls.currency.value }}</dd>
+            }
+            <dt class="grand">Total</dt>
+            <dd class="grand">{{ total() / 100 | currency: form.controls.currency.value }}</dd>
+          </dl>
+        </div>
       </section>
-      <footer class="paper-footer"><span>Thank you for your business.</span><b>hello&#64;acmetrading.demo · +44 20 7946 0958</b></footer>
+      <footer class="paper-footer">
+        <span>Thank you for your business.</span
+        ><b>hello&#64;acmetrading.demo · +44 20 7946 0958</b>
+      </footer>
     </article>
   </form>
 </section>

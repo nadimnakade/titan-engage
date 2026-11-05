@@ -108,8 +108,8 @@
             </th>
             <th>Supplier / item</th>
             <th>Specifications</th>
-            <th>Remaining</th>
-            <th>Source</th>
+            <th>Quantity remaining</th>
+            <th>Source quote / invoice</th>
             <th>Added</th>
             <th>Status</th>
             <th></th>
@@ -145,9 +145,7 @@
                 ><small>{{ r.queued }} already allocated</small>
               </td>
               <td>
-                <a [routerLink]="r.source.startsWith('Q-') ? '/quotations' : '/invoices'">{{
-                  r.source
-                }}</a>
+                <a [routerLink]="sourceLink(r.source)">{{ r.source }}</a>
               </td>
               <td>{{ r.added }}</td>
               <td>
@@ -194,9 +192,7 @@
             <dd>{{ r.required - r.queued }}</dd>
             <dt>Source</dt>
             <dd>
-              <a [routerLink]="r.source.startsWith('Q-') ? '/quotations' : '/invoices'">{{
-                r.source
-              }}</a>
+              <a [routerLink]="sourceLink(r.source)">{{ r.source }}</a>
             </dd>
             <dt>Customer</dt>
             <dd>{{ r.customer }}</dd>

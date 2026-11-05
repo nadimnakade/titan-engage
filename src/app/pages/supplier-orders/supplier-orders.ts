@@ -296,6 +296,9 @@ export class SupplierOrdersPage {
     this.requirements.update((all) => all.map((r) => (r.id === id ? { ...r, supplier } : r)));
     this.persist();
   }
+  protected sourceLink(source: string) {
+    return source.startsWith('Q-') ? ['/quotations', source, 'edit'] : ['/invoices', source];
+  }
   protected chooseView(v: RequirementStatus | 'All') {
     this.view.set(v);
     this.selected.set(new Set());

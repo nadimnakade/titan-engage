@@ -81,7 +81,7 @@
             <tr>
               <td><input type="checkbox" aria-label="Select {{ d.id }}" /></td>
               <td>
-                <a routerLink="/invoices/new">{{ d.id }}</a>
+                <a [routerLink]="['/invoices', d.id]">{{ d.id }}</a>
               </td>
               <td>
                 <div class="customer">
@@ -112,7 +112,7 @@
                 </button>
                 @if (menu() === d.id) {
                   <div class="action-menu">
-                    <a routerLink="/invoices/new">Edit</a>
+                    <a [routerLink]="['/invoices', d.id]">Edit</a>
                     <a routerLink="/supplier-orders" [queryParams]="{ source: d.id }"
                       >Prepare supplier order</a
                     >
