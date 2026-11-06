@@ -5,6 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DocumentKind, PrototypeStore } from '../data/prototype-store';
 import { UiIcon } from '../shared/ui-icon';
 import { QuotationStore } from '../data/quotation-store';
+import { BrandingStore } from '../data/branding-store';
 
 @Component({
   selector: 'app-document-editor',
@@ -17,6 +18,7 @@ export class DocumentEditorPage {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   protected store = inject(PrototypeStore);
+  protected branding = inject(BrandingStore);
   private quotes = inject(QuotationStore);
   protected kind = this.route.snapshot.data['type'] as DocumentKind;
   protected title = this.kind === 'invoice' ? 'Invoice' : 'Quotation';

@@ -2,6 +2,7 @@ import { Component, computed, effect, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PrototypeStore } from '../data/prototype-store';
+import { BrandingStore, DocumentTemplate } from '../data/branding-store';
 type Row = Record<string, string | number | boolean>;
 type Field = {
   key: string;
@@ -253,9 +254,13 @@ const MODULES: Record<
 })
 export class ModulePage {
   protected store = inject(PrototypeStore);
+  protected branding = inject(BrandingStore);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  protected slug = this.route.snapshot.data['section'] || this.route.snapshot.paramMap.get('section') || 'customers';
+  protected slug =
+    this.route.snapshot.data['section'] ||
+    this.route.snapshot.paramMap.get('section') ||
+    'customers';
   protected config = MODULES[this.slug];
   protected search = signal('');
   protected status = signal('All statuses');
@@ -265,8 +270,9 @@ export class ModulePage {
   protected activeTab = signal('Business profile');
   protected report = signal('Sales summary');
   protected reportRange = signal('This year');
-  protected template = signal(localStorage.getItem('titan-template') || 'Professional');
-  protected brandColor = signal('#2563eb');
+  protected template = this.branding.template;
+  protected brandColor = this.branding.brandColor;
+  protected logo = this.branding.logo;
   protected savedSettings = signal(false);
   protected rows = signal<Row[]>(this.loadRows());
   protected filtered = computed(() =>
@@ -330,19 +336,23 @@ export class ModulePage {
       this.config = MODULES[nextSlug];
       this.title =
         this.config?.title ||
-        ({
-          reports: 'Reports & Analytics',
-          branding: 'Branding & Templates',
-          settings: 'Settings',
-        } as Record<string, string>)[nextSlug] ||
+        (
+          {
+            reports: 'Reports & Analytics',
+            branding: 'Branding & Templates',
+            settings: 'Settings',
+          } as Record<string, string>
+        )[nextSlug] ||
         'Workspace';
       this.description =
         this.config?.description ||
-        ({
-          reports: 'Analyse revenue, sales, taxes and outstanding balances.',
-          branding: 'Control your business identity and document presentation.',
-          settings: 'Configure your organisation, users, currencies and preferences.',
-        } as Record<string, string>)[nextSlug] ||
+        (
+          {
+            reports: 'Analyse revenue, sales, taxes and outstanding balances.',
+            branding: 'Control your business identity and document presentation.',
+            settings: 'Configure your organisation, users, currencies and preferences.',
+          } as Record<string, string>
+        )[nextSlug] ||
         '';
       this.rows.set(this.loadRows());
       this.search.set('');
@@ -419,9 +429,36 @@ export class ModulePage {
     this.store.notify('Settings saved successfully');
   }
   protected chooseTemplate(name: string) {
-    this.template.set(name);
-    localStorage.setItem('titan-template', name);
+    this.branding.setTemplate(name as DocumentTemplate);
     this.store.notify(`${name} template selected`);
+  }
+  protected changeBrandColor(colour: string) {
+    this.branding.setBrandColor(colour);
+  }
+  protected uploadLogo(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      this.store.notify('Please choose a PNG, JPG or SVG image');
+      input.value = '';
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      this.store.notify('Logo must be smaller than 2 MB');
+      input.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.branding.setLogo(String(reader.result || ''));
+      this.store.notify('Company logo updated');
+    };
+    reader.readAsDataURL(file);
+  }
+  protected removeLogo() {
+    this.branding.setLogo('');
+    this.store.notify('Company logo removed');
   }
   protected String(v: unknown) {
     return String(v);

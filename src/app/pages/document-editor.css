@@ -5,6 +5,113 @@
   --doc-border: #dce6f2;
   display: block;
 }
+
+/* Saved brand identity is shared by quote and invoice documents. */
+.company-logo {
+  display: block;
+  width: min(220px, 42vw);
+  height: 64px;
+  object-fit: contain;
+  object-position: left center;
+}
+.editable-paper,
+.paper-header,
+.line-heading,
+.document-identity input {
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s,
+    border-radius 0.2s;
+}
+.editable-paper.template-modern {
+  background: #12253d;
+  color: #f8fbff;
+  border-radius: 14px;
+}
+.template-modern .paper-header {
+  padding: 20px;
+  background: var(--doc-blue);
+  border: 0;
+  border-radius: 9px;
+}
+.template-modern .paper-brand i,
+.template-modern .customer-block p,
+.template-modern .bottom-copy textarea,
+.template-modern .tax-note {
+  color: #d6e2ee;
+}
+.template-modern .document-identity h2,
+.template-modern .document-identity input,
+.template-modern .paper-brand b {
+  color: #fff;
+}
+.template-modern .line-heading {
+  background: var(--doc-blue);
+}
+.template-modern .editable-line {
+  border-color: #38516c;
+}
+.template-modern input,
+.template-modern select,
+.template-modern textarea {
+  color: #f8fbff !important;
+}
+.template-modern .document-identity input {
+  background: #f8fbff;
+  color: #17243a !important;
+}
+.template-modern .item-name,
+.template-modern .item-description,
+.template-modern .numeric,
+.template-modern .money-input span,
+.template-modern .percent-input span,
+.template-modern .customer-block label > span,
+.template-modern .meta-fields label > span,
+.template-modern .bottom-copy label > span,
+.template-modern .summary-block dt {
+  color: #f8fbff !important;
+}
+.template-modern .customer-block select,
+.template-modern .meta-fields input,
+.template-modern .meta-fields select {
+  background: #1d3651;
+  border-color: #45617d;
+}
+.editable-paper.template-minimal {
+  box-shadow: none;
+  border-color: #d3dae4;
+  padding: 52px 60px;
+}
+.template-minimal .paper-header {
+  border-width: 1px;
+}
+.template-minimal .line-heading {
+  background: transparent;
+  color: #17243a;
+  border-block: 2px solid #17243a;
+}
+.editable-paper.template-elegant {
+  font-family: Georgia, serif;
+  border: 8px double #25364e;
+}
+.template-elegant .paper-header {
+  align-items: center;
+  border-color: #25364e;
+}
+.template-elegant .document-identity h2 {
+  text-transform: uppercase;
+  letter-spacing: 5px;
+}
+.template-elegant .line-heading {
+  background: #44392f;
+}
+.template-elegant .button,
+.template-elegant input,
+.template-elegant select,
+.template-elegant textarea {
+  font-family: inherit;
+}
 .document-workspace {
   margin: -28px -36px -40px;
   min-height: 100vh;

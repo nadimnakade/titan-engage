@@ -1,8 +1,459 @@
-<section class="page-enter"><p class="crumb">⌂ &nbsp;›&nbsp; Workspace &nbsp;›&nbsp; {{title}}</p><div class="head"><div><h1>{{title}}</h1><p>{{description}}</p></div>@if(config){<button class="btn btn-primary" (click)="openNew()">＋ Add {{config.singular.toLowerCase()}}</button>}@else if(slug==='reports'){<button class="btn btn-primary" (click)="exportData(report())">⇩ Export report</button>}@else{<button class="btn btn-primary" (click)="saveSettings()">✓ Save changes</button>}</div>
-@if(config){<div class="metric-row"><article class="card"><span>Total {{title.toLowerCase()}}</span><b>{{rows().length}}</b><small>In this workspace</small></article><article class="card"><span>Active</span><b>{{rows().length-1}}</b><small class="positive">↑ Healthy portfolio</small></article><article class="card"><span>{{slug==='payments'?'Processed value':'Activity this month'}}</span><b>{{slug==='payments'?'$10,630':'24'}}</b><small>Updated today</small></article></div><article class="card table-card"><div class="filters"><label><span>⌕</span><input placeholder="Search records…" [ngModel]="search()" (ngModelChange)="search.set($event)"></label><select class="field" [ngModel]="status()" (ngModelChange)="status.set($event)"><option>All statuses</option><option>Active</option><option>Inactive</option><option>Completed</option><option>Pending</option></select><button class="btn btn-secondary" (click)="exportData()">⇩ Export CSV</button></div><div class="table-wrap"><table><thead><tr>@for(f of config.fields;track f.key){<th>{{f.label}}</th>}<th>Status</th><th></th></tr></thead><tbody>@for(row of filtered();track row['id']){<tr>@for(f of config.fields;track f.key){<td (click)="detail.set(row)">@if(f.type==='number'&&f.key!=='rate'){<b>${{(+row[f.key]).toLocaleString()}}</b>}@else if(f.key==='name'||f.key==='customer'){<div class="identity"><span>{{String(row[f.key]).slice(0,2).toUpperCase()}}</span><b>{{row[f.key]}}</b></div>}@else{<span>{{row[f.key]}}</span>}</td>}<td><span class="tag tag-{{String(row['status']).toLowerCase()}}">{{row['status']}}</span></td><td><div class="row-actions"><button (click)="detail.set(row)" title="View">◉</button><button (click)="openEdit(row)" title="Edit">✎</button><button (click)="remove(row)" title="Delete">×</button></div></td></tr>}@empty{<tr><td [attr.colspan]="config.fields.length+2" class="empty">No matching records found.</td></tr>}</tbody></table></div><footer>Showing {{filtered().length}} of {{rows().length}} records <div><button>‹</button><button class="active-page">1</button><button>›</button></div></footer></article>}
-@if(slug==='reports'){<div class="report-layout"><aside class="card report-menu"><b>Report centre</b>@for(name of reportNames;track name){<button [class.active]="report()===name" (click)="report.set(name)"><span>▥</span>{{name}}</button>}</aside><article class="card report-main"><div class="report-toolbar"><div><h2>{{report()}}</h2><p>Illustrative business performance data</p></div><select class="field" [ngModel]="reportRange()" (ngModelChange)="reportRange.set($event)"><option>This month</option><option>This quarter</option><option>This year</option></select></div><div class="report-metrics"><div><span>Total sales</span><b>$125,430</b><small>↑ 12.4%</small></div><div><span>Transactions</span><b>126</b><small>↑ 8.1%</small></div><div><span>Average value</span><b>$995</b><small>↑ 3.6%</small></div></div><div class="report-chart">@for(h of [48,65,52,74,68,84,77,91,87,100,106,118];track $index){<i [style.height.%]="h*.72"><small>{{['J','F','M','A','M','J','J','A','S','O','N','D'][$index]}}</small></i>}</div><div class="report-table"><b>Performance breakdown</b><table><tr><th>Period</th><th>Invoiced</th><th>Collected</th><th>Outstanding</th></tr><tr><td>October 2026</td><td>$24,850</td><td>$19,200</td><td>$5,650</td></tr><tr><td>September 2026</td><td>$21,430</td><td>$18,720</td><td>$2,710</td></tr><tr><td>August 2026</td><td>$19,760</td><td>$17,980</td><td>$1,780</td></tr></table></div></article></div>}
-@if(slug==='branding'){<div class="branding-layout"><div><article class="card brand-form"><h2>Business branding</h2><p>Changes update the preview instantly.</p><label><span class="label">Business name</span><input class="field" value="Acme Trading Ltd"></label><div class="two-col"><label><span class="label">Primary colour</span><input class="field color-input" type="color" [ngModel]="brandColor()" (ngModelChange)="brandColor.set($event)"></label><label><span class="label">Document font</span><select class="field"><option>Inter</option><option>Manrope</option><option>Georgia</option></select></label></div><label><span class="label">Business address</span><textarea class="field" rows="3">123 Business Street, Singapore 123456</textarea></label></article><article class="card templates"><h2>Document templates</h2><p>Choose the default style for quotes and invoices.</p><div class="template-grid">@for(t of templates;track t){<button [class.selected]="template()===t" (click)="chooseTemplate(t)"><span class="template-sheet" [class]="t.toLowerCase()"><i></i><b></b><em></em></span><strong>{{t}}</strong><small>{{template()===t?'Selected':'Use template'}}</small></button>}</div></article></div><aside class="card brand-preview"><div class="preview-label">LIVE INVOICE PREVIEW</div><div class="preview-paper"><header [style.border-color]="brandColor()"><div><b>TITAN <i [style.color]="brandColor()">ENGAGE</i></b><small>BUSINESS. BILLING. BEYOND.</small></div><h2>INVOICE</h2></header><section><b>Global Tech Ltd</b><span>455 Innovation Drive<br>London, United Kingdom</span></section><table><tr><th>Description</th><th>Qty</th><th>Amount</th></tr><tr><td>Laptop Pro 16”</td><td>2</td><td>$2,400</td></tr><tr><td>Setup Service</td><td>1</td><td>$150</td></tr></table><dl><dt>Subtotal</dt><dd>$2,550</dd><dt>VAT</dt><dd>$480</dd><dt>Total</dt><dd [style.color]="brandColor()">$3,030</dd></dl></div></aside></div>}
-@if(slug==='settings'){<div class="settings-layout"><aside class="card settings-menu">@for(tab of settingsTabs;track tab){<button [class.active]="activeTab()===tab" (click)="activeTab.set(tab)">{{tab}}</button>}</aside><article class="card settings-form"><div class="settings-head"><div><h2>{{activeTab()}}</h2><p>Configure {{activeTab().toLowerCase()}} for your organisation.</p></div>@if(savedSettings()){<span>✓ All changes saved</span>}</div>@if(activeTab()==='Business profile'){<div class="settings-grid"><label><span class="label">Legal business name</span><input class="field" value="Acme Trading Ltd"></label><label><span class="label">Trading name</span><input class="field" value="Acme Trading"></label><label><span class="label">Registration number</span><input class="field" value="SG-2026-41882"></label><label><span class="label">Tax number</span><input class="field" value="VAT-GB123456789"></label><label class="wide"><span class="label">Registered address</span><textarea class="field" rows="3">123 Business Street, Singapore 123456</textarea></label></div>}@else if(activeTab()==='Users'){<div class="member-list"><div><span>JS</span><b>John Smith<small>john@acmetrading.demo · Owner</small></b><em>Active</em></div><div><span>AM</span><b>Ava Morgan<small>ava@acmetrading.demo · Finance Manager</small></b><em>Active</em></div><button class="btn btn-secondary" (click)="store.notify('User invitation created')">＋ Invite user</button></div>}@else{<div class="option-list"><label><span><b>Enable {{activeTab()}}</b><small>Use recommended defaults for this prototype.</small></span><input type="checkbox" checked></label><label><span><b>Automatic notifications</b><small>Receive alerts when important changes occur.</small></span><input type="checkbox" checked></label><label><span><b>Require approval</b><small>Add an approval step before changes take effect.</small></span><input type="checkbox"></label></div>}<div class="settings-actions"><button class="btn btn-primary" (click)="saveSettings()">Save changes</button><button class="btn btn-secondary" (click)="store.notify('Changes reverted')">Cancel</button></div></article></div>}
-@if(modal()){<div class="modal-backdrop" (click)="modal.set(false)"><div class="modal" (click)="$event.stopPropagation()"><header><div><h2>{{editing()['id']?'Edit':'Add'}} {{config.singular.toLowerCase()}}</h2><p>Mock data is saved locally.</p></div><button (click)="modal.set(false)">×</button></header><div class="modal-fields">@for(f of config.fields;track f.key){<label><span class="label">{{f.label}}</span>@if(f.type==='select'){<select class="field" [ngModel]="editing()[f.key]" (ngModelChange)="updateField(f.key,$event)">@for(o of f.options;track o){<option>{{o}}</option>}</select>}@else{<input class="field" [type]="f.type||'text'" [ngModel]="editing()[f.key]" (ngModelChange)="updateField(f.key,$event)">}</label>}</div><footer><button class="btn btn-secondary" (click)="modal.set(false)">Cancel</button><button class="btn btn-primary" (click)="save()">Save {{config.singular.toLowerCase()}}</button></footer></div></div>}
-@if(detail()){<div class="modal-backdrop" (click)="detail.set(null)"><div class="modal detail-modal" (click)="$event.stopPropagation()"><header><div><p>{{config.singular}} details</p><h2>{{detail()!['name']||detail()!['customer']||detail()!['id']}}</h2></div><button (click)="detail.set(null)">×</button></header><div class="detail-grid">@for(f of config.fields;track f.key){<div><small>{{f.label}}</small><b>{{detail()![f.key]}}</b></div>}</div><div class="activity-log"><h3>Recent activity</h3><p><span>✓</span> Record updated <small>Today, 10:42</small></p><p><span>▤</span> Document created <small>24 Oct 2026</small></p></div><footer><button class="btn btn-secondary" (click)="detail.set(null)">Close</button><button class="btn btn-primary" (click)="openEdit(detail()!);detail.set(null)">Edit details</button></footer></div></div>}
+<section class="page-enter">
+  <p class="crumb">⌂ &nbsp;›&nbsp; Workspace &nbsp;›&nbsp; {{ title }}</p>
+  <div class="head">
+    <div>
+      <h1>{{ title }}</h1>
+      <p>{{ description }}</p>
+    </div>
+    @if (config) {
+      <button class="btn btn-primary" (click)="openNew()">
+        ＋ Add {{ config.singular.toLowerCase() }}
+      </button>
+    } @else if (slug === 'reports') {
+      <button class="btn btn-primary" (click)="exportData(report())">⇩ Export report</button>
+    } @else {
+      <button class="btn btn-primary" (click)="saveSettings()">✓ Save changes</button>
+    }
+  </div>
+  @if (config) {
+    <div class="metric-row">
+      <article class="card">
+        <span>Total {{ title.toLowerCase() }}</span
+        ><b>{{ rows().length }}</b
+        ><small>In this workspace</small>
+      </article>
+      <article class="card">
+        <span>Active</span><b>{{ rows().length - 1 }}</b
+        ><small class="positive">↑ Healthy portfolio</small>
+      </article>
+      <article class="card">
+        <span>{{ slug === 'payments' ? 'Processed value' : 'Activity this month' }}</span
+        ><b>{{ slug === 'payments' ? '$10,630' : '24' }}</b
+        ><small>Updated today</small>
+      </article>
+    </div>
+    <article class="card table-card">
+      <div class="filters">
+        <label
+          ><span>⌕</span
+          ><input
+            placeholder="Search records…"
+            [ngModel]="search()"
+            (ngModelChange)="search.set($event)" /></label
+        ><select class="field" [ngModel]="status()" (ngModelChange)="status.set($event)">
+          <option>All statuses</option>
+          <option>Active</option>
+          <option>Inactive</option>
+          <option>Completed</option>
+          <option>Pending</option></select
+        ><button class="btn btn-secondary" (click)="exportData()">⇩ Export CSV</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              @for (f of config.fields; track f.key) {
+                <th>{{ f.label }}</th>
+              }
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of filtered(); track row['id']) {
+              <tr>
+                @for (f of config.fields; track f.key) {
+                  <td (click)="detail.set(row)">
+                    @if (f.type === 'number' && f.key !== 'rate') {
+                      <b>${{ (+row[f.key]).toLocaleString() }}</b>
+                    } @else if (f.key === 'name' || f.key === 'customer') {
+                      <div class="identity">
+                        <span>{{ String(row[f.key]).slice(0, 2).toUpperCase() }}</span
+                        ><b>{{ row[f.key] }}</b>
+                      </div>
+                    } @else {
+                      <span>{{ row[f.key] }}</span>
+                    }
+                  </td>
+                }
+                <td>
+                  <span class="tag tag-{{ String(row['status']).toLowerCase() }}">{{
+                    row['status']
+                  }}</span>
+                </td>
+                <td>
+                  <div class="row-actions">
+                    <button (click)="detail.set(row)" title="View">◉</button
+                    ><button (click)="openEdit(row)" title="Edit">✎</button
+                    ><button (click)="remove(row)" title="Delete">×</button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td [attr.colspan]="config.fields.length + 2" class="empty">
+                  No matching records found.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+      <footer>
+        Showing {{ filtered().length }} of {{ rows().length }} records
+        <div><button>‹</button><button class="active-page">1</button><button>›</button></div>
+      </footer>
+    </article>
+  }
+  @if (slug === 'reports') {
+    <div class="report-layout">
+      <aside class="card report-menu">
+        <b>Report centre</b>
+        @for (name of reportNames; track name) {
+          <button [class.active]="report() === name" (click)="report.set(name)">
+            <span>▥</span>{{ name }}
+          </button>
+        }
+      </aside>
+      <article class="card report-main">
+        <div class="report-toolbar">
+          <div>
+            <h2>{{ report() }}</h2>
+            <p>Illustrative business performance data</p>
+          </div>
+          <select class="field" [ngModel]="reportRange()" (ngModelChange)="reportRange.set($event)">
+            <option>This month</option>
+            <option>This quarter</option>
+            <option>This year</option>
+          </select>
+        </div>
+        <div class="report-metrics">
+          <div><span>Total sales</span><b>$125,430</b><small>↑ 12.4%</small></div>
+          <div><span>Transactions</span><b>126</b><small>↑ 8.1%</small></div>
+          <div><span>Average value</span><b>$995</b><small>↑ 3.6%</small></div>
+        </div>
+        <div class="report-chart">
+          @for (h of [48, 65, 52, 74, 68, 84, 77, 91, 87, 100, 106, 118]; track $index) {
+            <i [style.height.%]="h * 0.72"
+              ><small>{{
+                ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'][$index]
+              }}</small></i
+            >
+          }
+        </div>
+        <div class="report-table">
+          <b>Performance breakdown</b>
+          <table>
+            <tr>
+              <th>Period</th>
+              <th>Invoiced</th>
+              <th>Collected</th>
+              <th>Outstanding</th>
+            </tr>
+            <tr>
+              <td>October 2026</td>
+              <td>$24,850</td>
+              <td>$19,200</td>
+              <td>$5,650</td>
+            </tr>
+            <tr>
+              <td>September 2026</td>
+              <td>$21,430</td>
+              <td>$18,720</td>
+              <td>$2,710</td>
+            </tr>
+            <tr>
+              <td>August 2026</td>
+              <td>$19,760</td>
+              <td>$17,980</td>
+              <td>$1,780</td>
+            </tr>
+          </table>
+        </div>
+      </article>
+    </div>
+  }
+  @if (slug === 'branding') {
+    <div class="branding-layout">
+      <div>
+        <article class="card brand-form">
+          <h2>Business branding</h2>
+          <p>Changes update the preview instantly and apply to new quotes and invoices.</p>
+          <label
+            ><span class="label">Business name</span><input class="field" value="Acme Trading Ltd"
+          /></label>
+          <div class="logo-field">
+            <span class="label">Company logo</span>
+            <div class="logo-upload">
+              @if (logo()) {
+                <img [src]="logo()" alt="Company logo preview" />
+              } @else {
+                <span class="logo-placeholder">TE</span>
+              }
+              <div>
+                <b>{{ logo() ? 'Company logo uploaded' : 'Add your company logo' }}</b
+                ><small>PNG, JPG or SVG · maximum 2 MB</small>
+                <div class="logo-actions">
+                  <label class="btn btn-secondary" for="company-logo">{{
+                    logo() ? 'Replace logo' : 'Upload logo'
+                  }}</label>
+                  @if (logo()) {
+                    <button class="btn btn-quiet" type="button" (click)="removeLogo()">
+                      Remove
+                    </button>
+                  }
+                </div>
+              </div>
+              <input
+                id="company-logo"
+                class="sr-only"
+                type="file"
+                accept="image/png,image/jpeg,image/svg+xml"
+                (change)="uploadLogo($event)"
+              />
+            </div>
+          </div>
+          <div class="two-col">
+            <label
+              ><span class="label">Primary colour</span
+              ><input
+                class="field color-input"
+                type="color"
+                [ngModel]="brandColor()"
+                (ngModelChange)="changeBrandColor($event)" /></label
+            ><label
+              ><span class="label">Document font</span
+              ><select class="field">
+                <option>Inter</option>
+                <option>Manrope</option>
+                <option>Georgia</option>
+              </select></label
+            >
+          </div>
+          <label
+            ><span class="label">Business address</span
+            ><textarea class="field" rows="3">123 Business Street, Singapore 123456</textarea>
+          </label>
+        </article>
+        <article class="card templates">
+          <h2>Document templates</h2>
+          <p>Choose the default style for quotes and invoices.</p>
+          <div class="template-grid">
+            @for (t of templates; track t) {
+              <button [class.selected]="template() === t" (click)="chooseTemplate(t)">
+                <span class="template-sheet" [class]="t.toLowerCase()"><i></i><b></b><em></em></span
+                ><strong>{{ t }}</strong
+                ><small>{{ template() === t ? 'Selected' : 'Use template' }}</small>
+              </button>
+            }
+          </div>
+        </article>
+      </div>
+      <aside class="card brand-preview">
+        <div class="preview-label">LIVE INVOICE PREVIEW · {{ template() }}</div>
+        <div
+          class="preview-paper"
+          [class]="'template-' + template().toLowerCase()"
+          [style.--brand-color]="brandColor()"
+        >
+          <header>
+            @if (logo()) {
+              <img class="preview-logo" [src]="logo()" alt="" />
+            } @else {
+              <div>
+                <b>TITAN <i>ENGAGE</i></b
+                ><small>BUSINESS. BILLING. BEYOND.</small>
+              </div>
+            }
+            <h2>INVOICE</h2>
+          </header>
+          <section>
+            <b>Global Tech Ltd</b><span>455 Innovation Drive<br />London, United Kingdom</span>
+          </section>
+          <table>
+            <tr>
+              <th>Description</th>
+              <th>Qty</th>
+              <th>Amount</th>
+            </tr>
+            <tr>
+              <td>Laptop Pro 16”</td>
+              <td>2</td>
+              <td>$2,400</td>
+            </tr>
+            <tr>
+              <td>Setup Service</td>
+              <td>1</td>
+              <td>$150</td>
+            </tr>
+          </table>
+          <dl>
+            <dt>Subtotal</dt>
+            <dd>$2,550</dd>
+            <dt>VAT</dt>
+            <dd>$480</dd>
+            <dt>Total</dt>
+            <dd>$3,030</dd>
+          </dl>
+        </div>
+      </aside>
+    </div>
+  }
+  @if (slug === 'settings') {
+    <div class="settings-layout">
+      <aside class="card settings-menu">
+        @for (tab of settingsTabs; track tab) {
+          <button [class.active]="activeTab() === tab" (click)="activeTab.set(tab)">
+            {{ tab }}
+          </button>
+        }
+      </aside>
+      <article class="card settings-form">
+        <div class="settings-head">
+          <div>
+            <h2>{{ activeTab() }}</h2>
+            <p>Configure {{ activeTab().toLowerCase() }} for your organisation.</p>
+          </div>
+          @if (savedSettings()) {
+            <span>✓ All changes saved</span>
+          }
+        </div>
+        @if (activeTab() === 'Business profile') {
+          <div class="settings-grid">
+            <label
+              ><span class="label">Legal business name</span
+              ><input class="field" value="Acme Trading Ltd" /></label
+            ><label
+              ><span class="label">Trading name</span
+              ><input class="field" value="Acme Trading" /></label
+            ><label
+              ><span class="label">Registration number</span
+              ><input class="field" value="SG-2026-41882" /></label
+            ><label
+              ><span class="label">Tax number</span
+              ><input class="field" value="VAT-GB123456789" /></label
+            ><label class="wide"
+              ><span class="label">Registered address</span
+              ><textarea class="field" rows="3">123 Business Street, Singapore 123456</textarea>
+            </label>
+          </div>
+        } @else if (activeTab() === 'Users') {
+          <div class="member-list">
+            <div>
+              <span>JS</span><b>John Smith<small>john@acmetrading.demo · Owner</small></b
+              ><em>Active</em>
+            </div>
+            <div>
+              <span>AM</span><b>Ava Morgan<small>ava@acmetrading.demo · Finance Manager</small></b
+              ><em>Active</em>
+            </div>
+            <button class="btn btn-secondary" (click)="store.notify('User invitation created')">
+              ＋ Invite user
+            </button>
+          </div>
+        } @else {
+          <div class="option-list">
+            <label
+              ><span
+                ><b>Enable {{ activeTab() }}</b
+                ><small>Use recommended defaults for this prototype.</small></span
+              ><input type="checkbox" checked /></label
+            ><label
+              ><span
+                ><b>Automatic notifications</b
+                ><small>Receive alerts when important changes occur.</small></span
+              ><input type="checkbox" checked /></label
+            ><label
+              ><span
+                ><b>Require approval</b
+                ><small>Add an approval step before changes take effect.</small></span
+              ><input type="checkbox"
+            /></label>
+          </div>
+        }
+        <div class="settings-actions">
+          <button class="btn btn-primary" (click)="saveSettings()">Save changes</button
+          ><button class="btn btn-secondary" (click)="store.notify('Changes reverted')">
+            Cancel
+          </button>
+        </div>
+      </article>
+    </div>
+  }
+  @if (modal()) {
+    <div class="modal-backdrop" (click)="modal.set(false)">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <header>
+          <div>
+            <h2>{{ editing()['id'] ? 'Edit' : 'Add' }} {{ config.singular.toLowerCase() }}</h2>
+            <p>Mock data is saved locally.</p>
+          </div>
+          <button (click)="modal.set(false)">×</button>
+        </header>
+        <div class="modal-fields">
+          @for (f of config.fields; track f.key) {
+            <label
+              ><span class="label">{{ f.label }}</span>
+              @if (f.type === 'select') {
+                <select
+                  class="field"
+                  [ngModel]="editing()[f.key]"
+                  (ngModelChange)="updateField(f.key, $event)"
+                >
+                  @for (o of f.options; track o) {
+                    <option>{{ o }}</option>
+                  }
+                </select>
+              } @else {
+                <input
+                  class="field"
+                  [type]="f.type || 'text'"
+                  [ngModel]="editing()[f.key]"
+                  (ngModelChange)="updateField(f.key, $event)"
+                />
+              }
+            </label>
+          }
+        </div>
+        <footer>
+          <button class="btn btn-secondary" (click)="modal.set(false)">Cancel</button
+          ><button class="btn btn-primary" (click)="save()">
+            Save {{ config.singular.toLowerCase() }}
+          </button>
+        </footer>
+      </div>
+    </div>
+  }
+  @if (detail()) {
+    <div class="modal-backdrop" (click)="detail.set(null)">
+      <div class="modal detail-modal" (click)="$event.stopPropagation()">
+        <header>
+          <div>
+            <p>{{ config.singular }} details</p>
+            <h2>{{ detail()!['name'] || detail()!['customer'] || detail()!['id'] }}</h2>
+          </div>
+          <button (click)="detail.set(null)">×</button>
+        </header>
+        <div class="detail-grid">
+          @for (f of config.fields; track f.key) {
+            <div>
+              <small>{{ f.label }}</small
+              ><b>{{ detail()![f.key] }}</b>
+            </div>
+          }
+        </div>
+        <div class="activity-log">
+          <h3>Recent activity</h3>
+          <p><span>✓</span> Record updated <small>Today, 10:42</small></p>
+          <p><span>▤</span> Document created <small>24 Oct 2026</small></p>
+        </div>
+        <footer>
+          <button class="btn btn-secondary" (click)="detail.set(null)">Close</button
+          ><button class="btn btn-primary" (click)="openEdit(detail()!); detail.set(null)">
+            Edit details
+          </button>
+        </footer>
+      </div>
+    </div>
+  }
 </section>

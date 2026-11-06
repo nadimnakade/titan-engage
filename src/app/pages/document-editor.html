@@ -41,14 +41,22 @@
         ><span class="zoom">100%</span>
       </div>
     </div>
-    <article class="editable-paper">
+    <article
+      class="editable-paper"
+      [class]="'editable-paper template-' + branding.template().toLowerCase()"
+      [style.--doc-blue]="branding.brandColor()"
+    >
       <header class="paper-header">
         <div class="paper-brand">
-          <span class="brand-mark">T</span>
-          <div>
-            <b>TITAN <i>ENGAGE</i></b
-            ><small>BUSINESS. BILLING. BEYOND.</small>
-          </div>
+          @if (branding.logo()) {
+            <img class="company-logo" [src]="branding.logo()" alt="Company logo" />
+          } @else {
+            <span class="brand-mark">T</span>
+            <div>
+              <b>TITAN <i>ENGAGE</i></b
+              ><small>BUSINESS. BILLING. BEYOND.</small>
+            </div>
+          }
         </div>
         <div class="document-identity">
           <h2>{{ title }}</h2>
