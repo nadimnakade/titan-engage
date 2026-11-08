@@ -18,6 +18,12 @@
   --radius-md: 12px;
   --radius-lg: 16px;
   --shadow-card: 0 1px 2px rgba(15, 35, 63, 0.03), 0 10px 30px rgba(32, 72, 117, 0.06);
+  --motion-fast: 150ms;
+  --motion-ui: 180ms;
+  --motion-enter: 220ms;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   font-family:
     Inter,
     ui-sans-serif,
@@ -203,46 +209,32 @@ textarea:focus-visible {
   color: #b36b00;
 }
 .page-enter {
-  animation: pageReveal 0.46s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: pageReveal var(--motion-enter) var(--ease-out);
   transform-origin: 50% 0;
+}
+
+/* Keep fixed dialogs attached to the viewport and prevent background scroll. */
+body:has(.modal-backdrop),
+body:has(.modal-overlay),
+body:has(.overlay [role='dialog']) {
+  overflow: hidden;
 }
 @keyframes pageReveal {
   from {
-    opacity: 0.35;
-    transform: translateY(10px);
-    filter: blur(3px);
-    clip-path: inset(0 0 14px 0 round 12px);
+    opacity: 0;
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
     transform: none;
-    filter: none;
-    clip-path: inset(0 round 12px);
-  }
-}
-@supports (animation-timeline: view()) {
-  .page-enter > .card,
-  .page-enter > article.card {
-    animation: cardReveal linear both;
-    animation-timeline: view();
-    animation-range: entry 0 entry 18%;
-  }
-  @keyframes cardReveal {
-    from {
-      opacity: 0.7;
-      transform: translateY(8px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
   }
 }
 @media (prefers-reduced-motion: reduce) {
   * {
     scroll-behavior: auto !important;
-    animation: none !important;
-    transition: none !important;
+    transition-duration: 1ms !important;
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
   }
 }
 
@@ -390,6 +382,10 @@ main .card {
   border-color: #dce7f2;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-card);
+  transition:
+    border-color var(--motion-ui) ease,
+    box-shadow var(--motion-ui) ease,
+    transform var(--motion-fast) var(--ease-out);
 }
 main .card:hover {
   border-color: #cfddeb;
@@ -401,7 +397,7 @@ main [role='button'] {
 }
 main button:not(:disabled):active,
 main [role='button']:active {
-  transform: translateY(1px);
+  transform: scale(0.98);
 }
 main button:disabled,
 main input:disabled,
@@ -433,7 +429,9 @@ main table thead th {
   letter-spacing: 0.035em;
 }
 main table tbody tr {
-  transition: background-color 180ms ease, box-shadow 180ms ease;
+  transition:
+    background-color var(--motion-ui) ease,
+    box-shadow var(--motion-ui) ease;
 }
 main table tbody tr:hover {
   background: #f7fbff;
@@ -452,6 +450,18 @@ main button[class*='action'],
 main button[class*='control'] {
   min-height: 44px;
 }
+main .btn,
+main button,
+main a,
+main .workspace-tabs button {
+  transition:
+    color var(--motion-ui) ease,
+    background-color var(--motion-ui) ease,
+    border-color var(--motion-ui) ease,
+    box-shadow var(--motion-ui) ease,
+    opacity var(--motion-ui) ease,
+    transform var(--motion-fast) var(--ease-out);
+}
 main .btn-primary {
   background: linear-gradient(135deg, #1570ff, #0759e8);
 }
@@ -461,6 +471,90 @@ main .btn-primary:hover {
 main :is(a, button, input, select, textarea, [role='button']):focus-visible {
   outline: 3px solid color-mix(in srgb, var(--focus-ring) 55%, transparent);
   outline-offset: 2px;
+}
+
+/* Shared transient surfaces and action progress. */
+main .modal,
+main [role='dialog'] {
+  transform-origin: center;
+  animation: modalEnter var(--motion-enter) var(--ease-out) both;
+}
+main .overlay,
+main .modal-overlay,
+main .drawer-scrim {
+  animation: scrimEnter var(--motion-enter) var(--ease-out) both;
+}
+main .menu,
+main [role='menu'],
+main .export-menu,
+main .filter-panel {
+  transform-origin: top right;
+  animation: popoverEnter var(--motion-ui) var(--ease-out) both;
+}
+.is-loading {
+  position: relative;
+  cursor: wait !important;
+}
+.is-loading::before,
+.loading-spinner {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 17px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 700ms linear infinite;
+}
+.is-loading::before {
+  content: '';
+}
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: #e7eef6;
+  color: transparent !important;
+  border-radius: 7px;
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.72), transparent);
+  animation: skeletonSweep 1.1s linear infinite;
+}
+.success,
+[role='status'] {
+  animation: feedbackEnter var(--motion-enter) var(--ease-out) both;
+}
+@keyframes modalEnter {
+  from { opacity: 0; transform: scale(0.96); }
+}
+@keyframes scrimEnter {
+  from { opacity: 0; }
+}
+@keyframes popoverEnter {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+}
+@keyframes feedbackEnter {
+  from { opacity: 0; transform: translateY(8px); }
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes skeletonSweep {
+  to { transform: translateX(100%); }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  main .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(20, 53, 92, 0.04), 0 16px 38px rgba(37, 79, 128, 0.08);
+  }
+  main .btn:hover,
+  main button:hover {
+    transform: translateY(-1px);
+  }
 }
 
 /* Keep dashboard information dense, but legible for the 40+ target audience. */
@@ -528,5 +622,25 @@ main .activity-row > span {
   }
   main .card {
     border-radius: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-enter,
+  main .modal,
+  main [role='dialog'],
+  main .overlay,
+  main .modal-overlay,
+  main .drawer-scrim,
+  main .menu,
+  main [role='menu'],
+  main .export-menu,
+  main .filter-panel,
+  .success,
+  [role='status'] {
+    transform: none !important;
+  }
+  .skeleton::after {
+    display: none;
   }
 }
