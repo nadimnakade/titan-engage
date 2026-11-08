@@ -136,7 +136,7 @@ export class QuoteListPage {
     this.drawerMore.set(false);
     if (action === 'View') this.openPreview(q);
     if (action === 'Edit') this.router.navigate(['/quotations', q.id, 'edit']);
-    if (action === 'Supplier order')
+    if (action === 'Supplier order' || action === 'Add to supplier order')
       this.router.navigate(['/supplier-orders'], { queryParams: { source: q.id } });
     if (action === 'Duplicate') {
       const id = this.qs.duplicate(q.id);
@@ -157,7 +157,7 @@ export class QuoteListPage {
       this.toast.notify('Quotation restored');
       this.closePreview();
     }
-    if (action === 'Convert') this.convertQuote(q);
+    if (action === 'Convert' || action === 'Convert to invoice') this.convertQuote(q);
     if (action === 'PDF') this.toast.notify(`${q.id} PDF prepared`);
     if (action === 'Email') {
       this.qs.sendEmail(q.id, q.email, `Quotation ${q.id}`);

@@ -213,14 +213,17 @@
                             'Duplicate',
                             'PDF',
                             'Email',
-                            'Convert',
+                            'Convert to invoice',
                             'Archive',
                             'Delete',
                           ]
                         : ['View', 'Restore'];
                       track a
                     ) {
-                      <button [disabled]="a === 'Convert' && !!q.invoice" (click)="act(q, a)">
+                      <button
+                        [disabled]="a === 'Convert to invoice' && !!q.invoice"
+                        (click)="act(q, a)"
+                      >
                         {{ a }}
                       </button>
                     }
@@ -286,7 +289,7 @@
         (click)="convertQuote(q)"
       >
         {{ q.invoice ? 'Converted' : 'Convert to invoice' }}</button
-      ><button (click)="act(q, 'Supplier order')">Prepare supplier order</button>
+      ><button (click)="act(q, 'Add to supplier order')">Add to supplier order</button>
       <div class="drawer-more">
         <button (click)="drawerMore.set(!drawerMore())">More ▾</button>
         @if (drawerMore()) {

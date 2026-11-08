@@ -77,9 +77,7 @@
             </select></label
           >
           <p>455 Innovation Drive<br />London, United Kingdom<br />billing&#64;globaltech.demo</p>
-          <button type="button" (click)="store.notify('New customer dialog opened')">
-            + Add new customer
-          </button>
+          <button type="button" (click)="newCustomerOpen.set(true)">+ Add new customer</button>
         </div>
         <div class="meta-fields">
           <label
@@ -250,3 +248,56 @@
     </article>
   </form>
 </section>
+@if (newCustomerOpen()) {
+  <div class="customer-modal-backdrop" (click)="newCustomerOpen.set(false)">
+    <section
+      class="customer-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="new-customer-title"
+      (click)="$event.stopPropagation()"
+    >
+      <header>
+        <div>
+          <small>NEW CONTACT DETECTED</small>
+          <h2 id="new-customer-title">Enter customer details</h2>
+          <p>Use these details once, or save the customer for future quotes and invoices.</p>
+        </div>
+        <button type="button" (click)="newCustomerOpen.set(false)">×</button>
+      </header>
+      <div>
+        <label
+          >Customer or company name<input
+            [value]="newCustomer().name"
+            (input)="updateNewCustomer('name', $any($event.target).value)" /></label
+        ><label
+          >Email address<input
+            type="email"
+            [value]="newCustomer().email"
+            (input)="updateNewCustomer('email', $any($event.target).value)" /></label
+        ><label
+          >Billing address<textarea
+            rows="3"
+            [value]="newCustomer().address"
+            (input)="updateNewCustomer('address', $any($event.target).value)"
+          ></textarea></label
+        ><label class="contact-check"
+          ><input
+            type="checkbox"
+            [checked]="addCustomerContact()"
+            (change)="addCustomerContact.set($any($event.target).checked)"
+          /><span
+            ><b>Add to customer contacts?</b
+            ><small>The contact will appear in future customer selectors.</small></span
+          ></label
+        >
+      </div>
+      <footer>
+        <button type="button" (click)="newCustomerOpen.set(false)">Cancel</button
+        ><button type="button" class="primary" (click)="useNewCustomer()">
+          Use customer details
+        </button>
+      </footer>
+    </section>
+  </div>
+}

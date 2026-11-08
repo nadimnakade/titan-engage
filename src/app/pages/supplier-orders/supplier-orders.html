@@ -19,8 +19,8 @@
       >
         <ui-icon name="filter" [size]="19" /></button
       ><button class="primary-action" (click)="openReview()">
-        <ui-icon name="plus" [size]="19" />Create purchase order
-      </button>
+        <ui-icon name="plus" [size]="19" />Create purchase order</button
+      ><button class="secondary-action" (click)="supplierModal.set(true)">+ Add supplier</button>
     </div>
   </header>
   @if (source) {
@@ -70,6 +70,11 @@
       }
       <button class="view-control"><ui-icon name="menu" [size]="16" /> View</button>
     </nav>
+    <div class="queue-explainer">
+      <b>How this queue works:</b> each row is one material item from a quote or invoice. Select
+      multiple rows for the same supplier to combine them into one purchase order. “Allocated” means
+      quantity already assigned to a draft or sent purchase order.
+    </div>
     @if (filtersOpen()) {
       <div class="filter-bar">
         <label
@@ -151,7 +156,26 @@
               <td>
                 <span class="status {{ r.status.toLowerCase() }}">{{ r.status }}</span>
               </td>
-              <td><button class="more" aria-label="Actions for {{ r.item }}">•••</button></td>
+              <td>
+                <div class="action-wrap">
+                  <button
+                    class="more"
+                    (click)="actionOpen.set(actionOpen() === r.id ? null : r.id)"
+                    aria-label="Actions for {{ r.item }}"
+                    [attr.aria-expanded]="actionOpen() === r.id"
+                  >
+                    •••
+                  </button>
+                  @if (actionOpen() === r.id) {
+                    <div class="action-menu">
+                      <button (click)="viewOrder(r)">View details</button
+                      ><button (click)="markPlaced(r)" [disabled]="r.status === 'Sent'">
+                        {{ r.status === 'Sent' ? 'Already sent' : 'Mark as placed & sent' }}</button
+                      ><button class="danger" (click)="removeRequirement(r)">Remove item</button>
+                    </div>
+                  }
+                </div>
+              </td>
             </tr>
           } @empty {
             <tr>
@@ -197,6 +221,11 @@
             <dt>Customer</dt>
             <dd>{{ r.customer }}</dd>
           </dl>
+          <footer>
+            <button (click)="viewOrder(r)">View details</button
+            ><button (click)="markPlaced(r)" [disabled]="r.status === 'Sent'">Mark placed</button
+            ><button class="danger" (click)="removeRequirement(r)">Remove</button>
+          </footer>
         </article>
       }
     </div>
@@ -283,6 +312,101 @@
         Add {{ importSelected().size }} item{{ importSelected().size === 1 ? '' : 's' }} to supplier
         queue
       </button>
+    </footer>
+  </section>
+}
+@if (detail()) {
+  <div class="modal-scrim" (click)="detail.set(null)"></div>
+  <section
+    class="detail-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="order-detail-title"
+  >
+    <header>
+      <div>
+        <small>{{ detail()!.purchaseOrder || 'MATERIAL REQUIREMENT' }}</small>
+        <h2 id="order-detail-title">{{ detail()!.item }}</h2>
+        <span>{{ detail()!.supplier }} · {{ detail()!.status }}</span>
+      </div>
+      <button (click)="detail.set(null)" aria-label="Close order details">×</button>
+    </header>
+    <div class="detail-content">
+      <dl>
+        <dt>Source document</dt>
+        <dd>
+          <a [routerLink]="sourceLink(detail()!.source)">{{ detail()!.source }}</a>
+        </dd>
+        <dt>Customer</dt>
+        <dd>{{ detail()!.customer }}</dd>
+        <dt>Specifications</dt>
+        <dd>{{ detail()!.specs }}</dd>
+        <dt>Required quantity</dt>
+        <dd>{{ detail()!.required }}</dd>
+        <dt>Allocated quantity</dt>
+        <dd>{{ detail()!.queued }}</dd>
+        <dt>Placed / sent</dt>
+        <dd>{{ detail()!.sentAt || 'Not yet sent' }}</dd>
+      </dl>
+      <h3>Purchase-order items</h3>
+      <p>
+        This purchase order currently contains this item. Select multiple pending rows from the same
+        supplier before creating a draft to show multiple item lines under one PO number.
+      </p>
+    </div>
+    <footer>
+      <button (click)="detail.set(null)">Close</button
+      ><button
+        class="send"
+        [disabled]="detail()!.status === 'Sent'"
+        (click)="markPlaced(detail()!); detail.set(null)"
+      >
+        Mark as placed & send to supplier
+      </button>
+    </footer>
+  </section>
+}
+@if (supplierModal()) {
+  <div class="modal-scrim" (click)="supplierModal.set(false)"></div>
+  <section
+    class="detail-panel supplier-panel"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="supplier-title"
+  >
+    <header>
+      <div>
+        <small>SUPPLIER CONTACTS</small>
+        <h2 id="supplier-title">Add new supplier</h2>
+        <span>Used for purchase orders and supplier email delivery.</span>
+      </div>
+      <button (click)="supplierModal.set(false)" aria-label="Close supplier form">×</button>
+    </header>
+    <div class="supplier-form">
+      <label
+        >Supplier name<input
+          [ngModel]="supplierForm().name"
+          (ngModelChange)="updateSupplierField('name', $event)" /></label
+      ><label
+        >Email address<input
+          type="email"
+          [ngModel]="supplierForm().email"
+          (ngModelChange)="updateSupplierField('email', $event)" /></label
+      ><label
+        >Phone<input
+          [ngModel]="supplierForm().phone"
+          (ngModelChange)="updateSupplierField('phone', $event)" /></label
+      ><label
+        >Address<textarea
+          rows="3"
+          [ngModel]="supplierForm().address"
+          (ngModelChange)="updateSupplierField('address', $event)"
+        ></textarea>
+      </label>
+    </div>
+    <footer>
+      <button (click)="supplierModal.set(false)">Cancel</button
+      ><button class="send" (click)="addSupplier()">Add supplier</button>
     </footer>
   </section>
 }

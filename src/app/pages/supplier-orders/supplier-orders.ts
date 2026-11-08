@@ -18,6 +18,15 @@ interface Requirement {
   added: string;
   status: RequirementStatus;
   sourceItemId?: string;
+  purchaseOrder?: string;
+  sentAt?: string;
+}
+
+interface SupplierContact {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
 }
 
 interface SourceItem {
@@ -146,6 +155,10 @@ export class SupplierOrdersPage {
   protected supplier = signal('All suppliers');
   protected selected = signal(new Set<string>());
   protected reviewOpen = signal(false);
+  protected actionOpen = signal<string | null>(null);
+  protected detail = signal<Requirement | null>(null);
+  protected supplierModal = signal(false);
+  protected supplierForm = signal<SupplierContact>({ name: '', email: '', phone: '', address: '' });
   protected filtersOpen = signal(false);
   protected importOpen = signal(!!this.source);
   protected importSelected = signal(new Set<string>());
@@ -159,6 +172,7 @@ export class SupplierOrdersPage {
     'Apex Distribution',
     'Unassigned',
   ];
+  protected supplierContacts = signal<SupplierContact[]>(this.loadSuppliers());
   protected sourceItems = computed<SourceItem[]>(() => {
     if (!this.source) return [];
     if (this.source.startsWith('Q-')) {
@@ -336,7 +350,14 @@ export class SupplierOrdersPage {
     const ids = this.selected();
     this.requirements.update((all) =>
       all.map((r) =>
-        ids.has(r.id) ? { ...r, status: 'Draft' as RequirementStatus, queued: r.required } : r,
+        ids.has(r.id)
+          ? {
+              ...r,
+              status: 'Draft' as RequirementStatus,
+              queued: r.required,
+              purchaseOrder: 'PO-2026-0019',
+            }
+          : r,
       ),
     );
     this.reviewOpen.set(false);
@@ -344,6 +365,81 @@ export class SupplierOrdersPage {
     this.view.set('Draft');
     this.persist();
     this.toast.notify('Draft purchase order PO-2026-0019 created');
+  }
+  protected viewOrder(r: Requirement) {
+    this.detail.set(r);
+    this.actionOpen.set(null);
+  }
+  protected markPlaced(r: Requirement) {
+    const now = '8 Nov 2026, 10:30';
+    this.requirements.update((all) =>
+      all.map((item) =>
+        item.id === r.id
+          ? {
+              ...item,
+              status: 'Sent' as RequirementStatus,
+              queued: item.required,
+              purchaseOrder: item.purchaseOrder || `PO-2026-${item.id.slice(-4)}`,
+              sentAt: now,
+            }
+          : item,
+      ),
+    );
+    this.persist();
+    this.actionOpen.set(null);
+    this.view.set('Sent');
+    this.toast.notify(`${r.item} marked as placed and sent to ${r.supplier}`);
+  }
+  protected removeRequirement(r: Requirement) {
+    if (!confirm(`Remove ${r.item} from supplier orders?`)) return;
+    this.requirements.update((all) => all.filter((item) => item.id !== r.id));
+    this.persist();
+    this.actionOpen.set(null);
+    this.toast.notify('Supplier-order item removed');
+  }
+  protected updateSupplierField(key: keyof SupplierContact, value: string) {
+    this.supplierForm.update((v) => ({ ...v, [key]: value }));
+  }
+  protected addSupplier() {
+    const supplier = this.supplierForm();
+    if (!supplier.name.trim() || !supplier.email.trim()) {
+      this.toast.notify('Supplier name and email are required');
+      return;
+    }
+    this.supplierContacts.update((all) => [supplier, ...all]);
+    localStorage.setItem('titan-supplier-contacts', JSON.stringify(this.supplierContacts()));
+    this.suppliers.splice(this.suppliers.length - 1, 0, supplier.name);
+    this.supplierModal.set(false);
+    this.supplierForm.set({ name: '', email: '', phone: '', address: '' });
+    this.toast.notify(`${supplier.name} added to supplier contacts`);
+  }
+  private loadSuppliers(): SupplierContact[] {
+    try {
+      return (
+        JSON.parse(localStorage.getItem('titan-supplier-contacts') || 'null') || [
+          {
+            name: 'Northern Textiles',
+            email: 'orders@northern.demo',
+            phone: '+44 20 5550 0134',
+            address: '14 Textile Way, Manchester',
+          },
+          {
+            name: 'Motion Components',
+            email: 'sales@motion.demo',
+            phone: '+49 30 555 0142',
+            address: '88 Motorstrasse, Berlin',
+          },
+          {
+            name: 'Apex Distribution',
+            email: 'supply@apex.demo',
+            phone: '+1 415 555 0193',
+            address: '240 Market Street, San Francisco',
+          },
+        ]
+      );
+    } catch {
+      return [];
+    }
   }
   protected reset() {
     this.query.set('');

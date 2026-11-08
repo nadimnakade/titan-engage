@@ -27,6 +27,9 @@ export class DocumentEditorPage {
   protected previewTab = signal(false);
   protected productMenu = signal(false);
   protected saved = signal(false);
+  protected newCustomerOpen = signal(false);
+  protected addCustomerContact = signal(true);
+  protected newCustomer = signal({ name: '', email: '', address: '' });
   protected form = this.fb.nonNullable.group({
     number: [this.kind === 'invoice' ? 'INV-2026-0127' : 'Q-2026-0049', [Validators.required]],
     date: ['2026-10-31'],
@@ -168,8 +171,12 @@ export class DocumentEditorPage {
   }
   protected send() {
     this.save();
-    if (this.form.valid)
+    if (this.form.valid) {
+      const id = this.form.controls.number.value;
+      const saved = this.store.documents().find((d) => d.id === id);
+      if (saved) this.store.save({ ...saved, status: 'Sent to customer' });
       this.store.notify(`${this.title} preview sent to ${this.form.controls.customer.value}`);
+    }
   }
   protected download() {
     this.store.notify('Print dialog opened for PDF preview');
@@ -177,5 +184,24 @@ export class DocumentEditorPage {
   }
   protected back() {
     this.router.navigate([this.kind === 'invoice' ? '/invoices' : '/quotations']);
+  }
+  protected updateNewCustomer(key: 'name' | 'email' | 'address', value: string) {
+    this.newCustomer.update((v) => ({ ...v, [key]: value }));
+  }
+  protected useNewCustomer() {
+    const customer = this.newCustomer();
+    if (!customer.name.trim() || !customer.email.trim()) {
+      this.store.notify('Customer name and email are required');
+      return;
+    }
+    if (this.addCustomerContact() && !this.customers.includes(customer.name))
+      this.customers.push(customer.name);
+    this.form.controls.customer.setValue(customer.name);
+    this.newCustomerOpen.set(false);
+    this.store.notify(
+      this.addCustomerContact()
+        ? 'New customer added to contacts'
+        : 'Customer details applied to this document',
+    );
   }
 }

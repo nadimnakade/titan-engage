@@ -114,9 +114,10 @@
                   <div class="action-menu">
                     <a [routerLink]="['/invoices', d.id]">Edit</a>
                     <a routerLink="/supplier-orders" [queryParams]="{ source: d.id }"
-                      >Prepare supplier order</a
+                      >Add to supplier order</a
                     >
                     <button (click)="download(d.id); menu.set(null)">Download PDF</button>
+                    <button (click)="send(d)">Send to customer</button>
                     @if (d.status === 'Draft') {
                       <button class="danger" (click)="remove(d.id); menu.set(null)">
                         Delete draft

@@ -1,8 +1,15 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { Routes, Router } from '@angular/router';
+import { AuthStore } from './data/auth-store';
+
+const signedInGuard = () =>
+  inject(AuthStore).signedIn() || inject(Router).createUrlTree(['/login']);
 
 export const routes: Routes = [
+  { path: 'login', loadComponent: () => import('./pages/login').then((m) => m.LoginPage) },
   {
     path: '',
+    canActivate: [signedInGuard],
     loadComponent: () => import('./layout/app-shell').then((m) => m.AppShell),
     children: [
       { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
