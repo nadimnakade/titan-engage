@@ -182,6 +182,14 @@
   gap: 16px;
   margin-top: 22px;
 }
+.report-layout > *,
+.settings-layout > *,
+.branding-layout > *,
+.branding-layout > div,
+.brand-form,
+.templates {
+  min-width: 0;
+}
 .report-menu,
 .settings-menu {
   padding: 10px;
@@ -294,6 +302,9 @@
 }
 .report-table {
   margin-top: 20px;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
 }
 .report-table > b {
   display: block;
@@ -306,6 +317,34 @@
   gap: 16px;
   margin-top: 22px;
 }
+.branding-layout .card {
+  border-color: #dce7f3;
+  border-radius: 16px;
+  box-shadow: 0 2px 5px #14355c08, 0 16px 42px #25507f0a;
+}
+.branding-layout .brand-form h2,
+.branding-layout .templates h2 {
+  color: #132b46;
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -0.25px;
+}
+.branding-layout .brand-form > p,
+.branding-layout .templates > p {
+  max-width: 66ch;
+  color: #61758a;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.branding-layout .field {
+  min-height: 48px;
+  border-radius: 10px;
+  background: #fbfdff;
+}
+.branding-layout textarea.field {
+  min-height: 92px;
+  line-height: 1.55;
+}
 .branding-layout > div {
   display: grid;
   gap: 16px;
@@ -314,7 +353,7 @@
 .templates,
 .brand-preview,
 .settings-form {
-  padding: 20px;
+  padding: 24px;
 }
 .brand-form > label {
   display: block;
@@ -339,26 +378,33 @@
 .template-grid button {
   border: 1px solid #e2e8f0;
   background: #fff;
-  border-radius: 10px;
-  padding: 8px;
+  border-radius: 12px;
+  padding: 10px;
   text-align: left;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 .template-grid button.selected {
   border: 2px solid #2563eb;
   background: #f6f9ff;
+  box-shadow: 0 0 0 3px #2563eb12, 0 10px 24px #1d4ed812;
+}
+.template-grid button:hover {
+  border-color: #8eb2ee;
+  box-shadow: 0 9px 24px #183a6812;
+  transform: translateY(-2px);
 }
 .template-grid strong,
 .template-grid small {
   display: block;
 }
 .template-grid strong {
-  font-size: 10px;
-  margin-top: 7px;
+  font-size: 13px;
+  margin-top: 10px;
 }
 .template-grid small {
-  font-size: 10px;
+  font-size: 12px;
   color: #8290a3;
-  margin-top: 2px;
+  margin-top: 3px;
 }
 .template-sheet {
   height: 90px;
@@ -664,7 +710,10 @@
   .report-menu,
   .settings-menu {
     display: flex;
+    width: 100%;
+    max-width: 100%;
     overflow: auto;
+    contain: inline-size;
   }
   .report-menu > b {
     display: none;
@@ -684,7 +733,25 @@
     min-width: 760px;
   }
 }
+.sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
 @media (max-width: 560px) {
+  .branding-layout,
+  .branding-layout > div,
+  .brand-form,
+  .templates {
+    width: 100%;
+    max-width: 100%;
+  }
   .head {
     align-items: flex-start;
     flex-direction: column;
@@ -878,17 +945,19 @@
   align-items: center;
   gap: 14px;
   margin-top: 7px;
-  padding: 14px;
+  padding: 16px;
   border: 1px dashed #b9c8da;
   border-radius: 10px;
   background: #f8fbff;
 }
-.logo-upload img,
+.uploaded-logo,
 .logo-placeholder {
   width: 64px;
   height: 52px;
   flex: 0 0 auto;
-  object-fit: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
   border-radius: 8px;
   background: #fff;
   border: 1px solid #dce6f1;
@@ -905,13 +974,13 @@
   display: block;
 }
 .logo-upload b {
-  font-size: 11px;
+  font-size: 13px;
   color: #1e334f;
 }
 .logo-upload small {
   margin-top: 3px;
   color: #718399;
-  font-size: 10px;
+  font-size: 12px;
 }
 .logo-actions {
   display: flex;
@@ -919,9 +988,9 @@
   margin-top: 9px;
 }
 .logo-actions .btn {
-  min-height: 34px;
-  padding: 0 11px;
-  font-size: 10px;
+  min-height: 40px;
+  padding: 0 14px;
+  font-size: 12px;
   cursor: pointer;
 }
 .btn-quiet {
@@ -947,8 +1016,9 @@
   display: block;
   width: min(150px, 48%);
   height: 44px;
-  object-fit: contain;
-  object-position: left center;
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: contain;
 }
 .preview-paper.template-modern {
   background: #12253d;

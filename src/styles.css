@@ -10,6 +10,14 @@
   --line: #dbe6f4;
   --surface: #f4f8fd;
   --success: #16a34a;
+  --ink-strong: #0b1f3a;
+  --ink-body: #294361;
+  --ink-muted: #60758e;
+  --focus-ring: #60a5fa;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --shadow-card: 0 1px 2px rgba(15, 35, 63, 0.03), 0 10px 30px rgba(32, 72, 117, 0.06);
   font-family:
     Inter,
     ui-sans-serif,
@@ -81,7 +89,7 @@ button {
   border: 0;
   border-radius: 9px;
   padding: 0 18px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   display: inline-flex;
   align-items: center;
@@ -143,7 +151,7 @@ textarea:focus-visible {
   padding: 10px 13px;
   background: white;
   color: #10233f;
-  font-size: 12px;
+  font-size: 14px;
   transition:
     border-color 0.18s,
     box-shadow 0.18s;
@@ -159,7 +167,7 @@ textarea:focus-visible {
 .label {
   display: block;
   color: #3f4c61;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
   margin-bottom: 7px;
 }
@@ -359,4 +367,166 @@ main .workspace-tabs button span {
 main .workspace-tabs button.active span {
   background: #deebff;
   color: #0f67ff;
+}
+
+/* Application-wide commercial polish: one rhythm for every workspace. */
+main {
+  color: var(--ink-body);
+}
+main .page-enter {
+  width: 100%;
+}
+main h1,
+main h2,
+main h3,
+main strong,
+main b {
+  color: var(--ink-strong);
+}
+main p {
+  line-height: 1.55;
+}
+main .card {
+  border-color: #dce7f2;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-card);
+}
+main .card:hover {
+  border-color: #cfddeb;
+}
+main a,
+main button,
+main [role='button'] {
+  -webkit-tap-highlight-color: transparent;
+}
+main button:not(:disabled):active,
+main [role='button']:active {
+  transform: translateY(1px);
+}
+main button:disabled,
+main input:disabled,
+main select:disabled,
+main textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+main input:not([type='checkbox']):not([type='radio']):not([type='color']),
+main select,
+main textarea {
+  min-height: 44px;
+  border-radius: var(--radius-sm);
+}
+main textarea {
+  line-height: 1.55;
+}
+main ::placeholder {
+  color: #7d8fa5;
+  opacity: 1;
+}
+main table {
+  font-variant-numeric: tabular-nums;
+}
+main table thead th {
+  min-height: 44px;
+  background: #f3f7fb;
+  font-weight: 750;
+  letter-spacing: 0.035em;
+}
+main table tbody tr {
+  transition: background-color 180ms ease, box-shadow 180ms ease;
+}
+main table tbody tr:hover {
+  background: #f7fbff;
+}
+main table td,
+main table th {
+  padding-top: 13px;
+  padding-bottom: 13px;
+}
+main .tag,
+main [class*='status'] {
+  line-height: 1.25;
+}
+main .btn,
+main button[class*='action'],
+main button[class*='control'] {
+  min-height: 44px;
+}
+main .btn-primary {
+  background: linear-gradient(135deg, #1570ff, #0759e8);
+}
+main .btn-primary:hover {
+  background: linear-gradient(135deg, #0d62ed, #064ecb);
+}
+main :is(a, button, input, select, textarea, [role='button']):focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--focus-ring) 55%, transparent);
+  outline-offset: 2px;
+}
+
+/* Keep dashboard information dense, but legible for the 40+ target audience. */
+main .metric span,
+main .metric small,
+main .card-head p,
+main .activity-row small,
+main .legend,
+main .bar-group small,
+main .outstanding li {
+  font-size: 12px !important;
+}
+main .card-head h2,
+main .activity-row b {
+  font-size: 14px !important;
+}
+main .metric strong {
+  font-size: 23px !important;
+}
+main .metric-icon,
+main .activity-row > span {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 900px) {
+  main .page-head h1,
+  main .head h1,
+  main .editor-head h1 {
+    font-size: 27px !important;
+  }
+  main .workspace-tabs {
+    margin-inline: -4px;
+    padding-inline: 4px;
+  }
+  main .workspace-tabs button {
+    min-height: 50px;
+    padding-inline: 16px;
+  }
+}
+
+@media (max-width: 520px) {
+  body {
+    font-size: 16px;
+  }
+  main .page-head h1,
+  main .head h1,
+  main .editor-head h1 {
+    font-size: 25px !important;
+    letter-spacing: -0.5px !important;
+  }
+  main .page-head,
+  main .head,
+  main .editor-head {
+    gap: 14px;
+  }
+  main button,
+  main input,
+  main select,
+  main textarea {
+    font-size: 16px;
+  }
+  main .btn {
+    min-height: 48px;
+    padding-inline: 16px;
+  }
+  main .card {
+    border-radius: 11px;
+  }
 }

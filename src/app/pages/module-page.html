@@ -186,7 +186,7 @@
             <span class="label">Company logo</span>
             <div class="logo-upload">
               @if (logo()) {
-                <img [src]="logo()" alt="Company logo preview" />
+                <span class="uploaded-logo" role="img" aria-label="Company logo preview" [style.background-image]="'url(' + logo() + ')'" ></span>
               } @else {
                 <span class="logo-placeholder">TE</span>
               }
@@ -258,7 +258,7 @@
         >
           <header>
             @if (logo()) {
-              <img class="preview-logo" [src]="logo()" alt="" />
+              <span class="preview-logo" role="img" aria-label="Company logo" [style.background-image]="'url(' + logo() + ')'" ></span>
             } @else {
               <div>
                 <b>TITAN <i>ENGAGE</i></b

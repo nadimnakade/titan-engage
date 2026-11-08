@@ -34,10 +34,16 @@
       }
     </div>
     <section class="user-card">
-      <button class="profile-trigger" (click)="profileOpen.set(!profileOpen())">
+      <button
+        class="profile-trigger"
+        (click)="profileOpen.set(!profileOpen())"
+        aria-label="Open user profile menu"
+        [attr.aria-expanded]="profileOpen()"
+      >
         <span class="profile-avatar">{{ auth.user()?.initials }}</span
         ><strong>{{ auth.user()?.name }}</strong
-        ><small>{{ auth.user()?.role }}</small>
+        ><small>{{ auth.user()?.role }}</small
+        ><span class="profile-hint">Profile menu <span aria-hidden="true">⌄</span></span>
       </button>
       @if (profileOpen()) {
         <div class="profile-menu">
@@ -61,6 +67,9 @@
           }
         </div>
       }
+      <button class="nav-logout" (click)="auth.logout()" aria-label="Log out of Titan Engage">
+        <span class="logout-icon" aria-hidden="true"></span><span>Log out</span>
+      </button>
     </nav>
     <a routerLink="/dashboard" class="side-brand" (click)="mobileOpen.set(false)"
       ><span class="logo-mark"><i></i><b></b></span
@@ -72,9 +81,21 @@
       <button class="menu-btn" (click)="mobileOpen.set(true)" aria-label="Open menu">
         <ui-icon name="menu" [size]="22" /></button
       ><a routerLink="/dashboard"><b>TITAN</b> <span>ENGAGE</span></a
-      ><button class="mobile-avatar" (click)="profileOpen.set(!profileOpen())">
+      ><button
+        class="mobile-avatar"
+        (click)="profileOpen.set(!profileOpen())"
+        aria-label="Open user profile menu"
+        [attr.aria-expanded]="profileOpen()"
+      >
         {{ auth.user()?.initials }}
       </button>
+      @if (profileOpen()) {
+        <div class="mobile-profile-menu">
+          <div><strong>{{ auth.user()?.name }}</strong><small>{{ auth.user()?.role }}</small></div>
+          <a routerLink="/settings/organization" (click)="profileOpen.set(false)">Account settings</a>
+          <button (click)="auth.logout()">Log out</button>
+        </div>
+      }
     </header>
     <main id="main-content" tabindex="-1"><router-outlet /></main>
   </div>

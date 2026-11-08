@@ -28,7 +28,7 @@
   justify-content: space-between;
   padding: 0 8px 12px;
   color: #8db2c2;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 1.3px;
   text-transform: uppercase;
@@ -75,7 +75,7 @@
   border: 0;
   background: transparent;
   color: #087e8c;
-  font-size: 10px;
+  font-size: 12px;
 }
 .notification-panel article {
   padding: 10px;
@@ -90,12 +90,12 @@
   display: block;
 }
 .notification-panel article b {
-  font-size: 11px;
+  font-size: 13px;
 }
 .notification-panel article small {
   margin-top: 4px;
   color: #708294;
-  font-size: 10px;
+  font-size: 12px;
 }
 .profile-trigger {
   display: grid;
@@ -108,6 +108,15 @@
 }
 .profile-trigger strong {
   margin-top: 8px;
+}
+.profile-hint {
+  margin-top: 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #b9d6e1;
+  font-size: 11px;
+  font-weight: 750;
 }
 .profile-menu {
   position: absolute;
@@ -131,7 +140,7 @@
   color: inherit;
   text-align: left;
   text-decoration: none;
-  font-size: 11px;
+  font-size: 13px;
   border-radius: 6px;
 }
 .profile-menu a:hover,
@@ -211,13 +220,13 @@
   display: block;
 }
 .company-card small {
-  font-size: 8px;
+  font-size: 10px;
   letter-spacing: 1px;
   text-transform: uppercase;
   color: #84aaba;
 }
 .company-card b {
-  font-size: 10px;
+  font-size: 12px;
   color: #fff;
   margin-top: 2px;
 }
@@ -237,13 +246,13 @@
   margin: 0;
   padding: 8px 9px 5px;
   color: #80a9ba;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 850;
   letter-spacing: 1.4px;
   text-transform: uppercase;
 }
 .nav-group a {
-  min-height: 43px;
+  min-height: 46px;
   padding: 0 10px;
   border-radius: 9px;
   display: flex;
@@ -274,6 +283,56 @@
 }
 .nav-group a.active ui-icon {
   color: #6cf0ec;
+}
+.nav-logout {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 4px;
+  padding: 0 11px;
+  border: 1px solid #ffffff18;
+  border-radius: 9px;
+  background: #ffffff08;
+  color: #d7e9ef;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: left;
+}
+.nav-logout:hover {
+  background: #ffffff12;
+  color: #fff;
+}
+.logout-icon {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border: 1.8px solid #80dfe4;
+  border-right: 0;
+  border-radius: 3px 0 0 3px;
+}
+.logout-icon::before,
+.logout-icon::after {
+  content: '';
+  position: absolute;
+}
+.logout-icon::before {
+  width: 10px;
+  height: 1.8px;
+  right: -5px;
+  top: 8px;
+  background: #80dfe4;
+}
+.logout-icon::after {
+  width: 6px;
+  height: 6px;
+  right: -5px;
+  top: 5px;
+  border-top: 1.8px solid #80dfe4;
+  border-right: 1.8px solid #80dfe4;
+  transform: rotate(45deg);
 }
 .side-brand {
   margin-top: auto;
@@ -335,9 +394,12 @@
 .mobile-topbar {
   display: none;
 }
+.mobile-profile-menu {
+  display: none;
+}
 .workspace main {
   min-height: 100vh;
-  padding: 28px 36px 40px;
+  padding: 30px clamp(24px, 2.6vw, 42px) 44px;
   max-width: 1600px;
   margin: auto;
   background: radial-gradient(circle at 70% 0, #fbfeff 0, #f5f9fc 45%, #f2f7fa 100%);
@@ -429,6 +491,48 @@ a:focus-visible {
     top: 0;
     z-index: 30;
   }
+  .mobile-profile-menu {
+    position: absolute;
+    top: 55px;
+    right: 14px;
+    width: 230px;
+    padding: 8px;
+    display: block;
+    background: #fff;
+    border: 1px solid #d7e5ec;
+    border-radius: 12px;
+    box-shadow: 0 18px 45px #09263c2e;
+  }
+  .mobile-profile-menu div,
+  .mobile-profile-menu a,
+  .mobile-profile-menu button {
+    display: block;
+    width: 100%;
+    padding: 10px 11px;
+    color: #17324c;
+    text-align: left;
+    text-decoration: none;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    font-size: 13px;
+  }
+  .mobile-profile-menu div {
+    border-bottom: 1px solid #e5edf2;
+    margin-bottom: 4px;
+  }
+  .mobile-profile-menu strong,
+  .mobile-profile-menu small {
+    display: block;
+  }
+  .mobile-profile-menu small {
+    margin-top: 3px;
+    color: #6b7e91;
+  }
+  .mobile-profile-menu a:hover,
+  .mobile-profile-menu button:hover {
+    background: #eef7fa;
+  }
   .mobile-topbar > a {
     color: #103a56;
     text-decoration: none;
@@ -461,7 +565,7 @@ a:focus-visible {
 }
 @media (max-width: 520px) {
   .workspace main {
-    padding: 18px 14px 30px;
+    padding: 20px 16px 34px;
   }
   .toast {
     left: 14px;
