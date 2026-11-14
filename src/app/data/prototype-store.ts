@@ -1,8 +1,8 @@
 import { Injectable, computed, signal } from '@angular/core';
 
 export type DocumentKind = 'quotation' | 'invoice';
-export interface LineItem { id: number; name: string; description: string; qty: number; unit: string; price: number; discount: number; tax: number; }
-export interface BusinessDocument { id: string; kind: DocumentKind; customer: string; date: string; due: string; total: number; paid: number; status: string; }
+export interface LineItem { id: number | string; name: string; description: string; qty: number; unit: string; price: number; discount: number; tax: number; productId?: string; madeToMeasure?: boolean; family?: string; specifications?: Record<string, unknown>; }
+export interface BusinessDocument { id: string; kind: DocumentKind; customer: string; date: string; due: string; total: number; paid: number; status: string; items?: LineItem[]; }
 
 const seed: BusinessDocument[] = [
   { id:'Q-2026-0048',kind:'quotation',customer:'Global Tech Ltd',date:'28 Oct 2026',due:'27 Nov 2026',total:12480,paid:0,status:'Sent' },

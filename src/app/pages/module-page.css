@@ -637,6 +637,44 @@
   gap: 14px;
   padding: 20px;
 }
+.blind-admin {
+  margin: 0 20px 20px;
+  padding: 16px;
+  border: 1px solid #dbe7f3;
+  border-radius: 12px;
+  background: #f7fbff;
+}
+.feature-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+.feature-toggle input,
+.spec-picker input {
+  width: 19px;
+  height: 19px;
+  accent-color: #0f67ff;
+}
+.feature-toggle b,
+.feature-toggle small {
+  display: block;
+}
+.feature-toggle b { font-size: 13px; }
+.feature-toggle small { margin-top: 4px; color: #647a92; font-size: 12px; line-height: 1.45; }
+.blind-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #dbe7f3;
+}
+.spec-picker { margin-top: 16px; }
+.spec-picker header { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.spec-picker header b { font-size: 13px; }
+.spec-picker header span { color: #647a92; font-size: 12px; }
+.spec-picker > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 12px; }
+.spec-picker label { min-height: 40px; display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 8px; background: #fff; font-size: 12px; }
 .modal > footer {
   display: flex;
   justify-content: flex-end;
@@ -785,6 +823,8 @@
   .two-col,
   .settings-grid,
   .modal-fields,
+  .blind-admin-grid,
+  .spec-picker > div,
   .detail-grid {
     grid-template-columns: 1fr;
   }

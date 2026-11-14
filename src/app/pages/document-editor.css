@@ -535,6 +535,76 @@
 .editable-line:hover {
   background: #f8fbff;
 }
+.line-block {
+  border-bottom: 1px solid #e4ebf3;
+}
+.line-block .editable-line {
+  border-bottom: 0;
+}
+.custom-specs {
+  margin: 0 10px 14px;
+  padding: 15px;
+  border: 1px solid #d8e6f4;
+  border-radius: 11px;
+  background: #f7fbff;
+}
+.custom-specs > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+.custom-specs header b,
+.custom-specs header span {
+  display: block;
+}
+.custom-specs header b { font-size: 14px; color: #143352; }
+.custom-specs header span { margin-top: 3px; color: #6b8097; font-size: 12px; }
+.custom-specs header button {
+  min-height: 40px;
+  border: 1px solid #bcd1e7;
+  border-radius: 8px;
+  background: #fff;
+  color: #1767ed;
+  padding: 0 12px;
+  font-size: 12px;
+  font-weight: 750;
+}
+.side-convention {
+  margin: 11px 0;
+  padding: 8px 10px;
+  border-left: 3px solid #38bdf8;
+  background: #eef8ff;
+  color: #526b84;
+  font-size: 12px;
+}
+.spec-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 11px;
+}
+.spec-grid label { min-width: 0; }
+.spec-grid label > span {
+  display: block;
+  margin-bottom: 6px;
+  color: #425b76;
+  font-size: 12px;
+  font-weight: 700;
+}
+.spec-grid input,
+.spec-grid select,
+.spec-grid textarea {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #cbd9e8;
+  border-radius: 8px;
+  background: #fff;
+  color: #183251;
+  padding: 9px 11px;
+  font-size: 13px;
+}
+.spec-grid textarea { resize: vertical; }
+.spec-grid .wide { grid-column: 1 / -1; }
 .editable-line input {
   width: 100%;
   border: 1px solid transparent;
@@ -843,6 +913,8 @@ textarea:focus-visible {
   .editable-line {
     grid-template-columns: minmax(210px, 2fr) 78px 130px 90px 120px 40px;
   }
+  .custom-specs { margin: 0; }
+  .spec-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .document-bottom {
     grid-template-columns: 1fr 340px;
     gap: 32px;
@@ -980,6 +1052,9 @@ textarea:focus-visible {
   .header-actions .primary {
     font-size: 12px;
   }
+  .custom-specs > header { align-items: flex-start; flex-direction: column; }
+  .custom-specs header button { width: 100%; }
+  .spec-grid { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
   * {

@@ -415,6 +415,29 @@
             </label>
           }
         </div>
+        @if (slug === 'products') {
+          <section class="blind-admin">
+            <label class="feature-toggle">
+              <input
+                type="checkbox"
+                [checked]="!!editing()['customSpecs']"
+                (change)="setMadeToMeasure(!editing()['customSpecs'])"
+              />
+              <span><b>Made to measure / Requires custom specifications</b><small>Capture dimensions and operating details separately on every quote or invoice line.</small></span>
+            </label>
+            @if (editing()['customSpecs']) {
+              <div class="blind-admin-grid">
+                <label><span class="label">Product family</span><select class="field" [ngModel]="productConfig().family" (ngModelChange)="updateBlindConfig('family', $event)">@for (family of blindFamilies; track family) {<option>{{ family }}</option>}</select></label>
+                <label><span class="label">Default operation</span><select class="field" [ngModel]="productConfig().defaults['operation']" (ngModelChange)="updateBlindDefault('operation', $event)"><option>Manual</option><option>Motorised</option><option>Cordless</option><option>Spring</option></select></label>
+                <label><span class="label">Minimum width</span><input class="field" type="number" min="0" [ngModel]="productConfig().minWidth" (ngModelChange)="updateBlindConfig('minWidth', +$event)" /></label>
+                <label><span class="label">Maximum width</span><input class="field" type="number" min="0" [ngModel]="productConfig().maxWidth" (ngModelChange)="updateBlindConfig('maxWidth', +$event)" /></label>
+                <label><span class="label">Minimum drop</span><input class="field" type="number" min="0" [ngModel]="productConfig().minDrop" (ngModelChange)="updateBlindConfig('minDrop', +$event)" /></label>
+                <label><span class="label">Maximum drop</span><input class="field" type="number" min="0" [ngModel]="productConfig().maxDrop" (ngModelChange)="updateBlindConfig('maxDrop', +$event)" /></label>
+              </div>
+              <div class="spec-picker"><header><b>Enabled line-item fields</b><span>Width, drop and unit are always required.</span></header><div>@for (spec of configurableSpecs; track spec[0]) {<label><input type="checkbox" [checked]="productConfig().enabledSpecs.includes(spec[0])" (change)="toggleBlindSpec(spec[0])" /><span>{{ spec[1] }}</span></label>}</div></div>
+            }
+          </section>
+        }
         <footer>
           <button class="btn btn-secondary" (click)="modal.set(false)">Cancel</button
           ><button class="btn btn-primary" (click)="save()">

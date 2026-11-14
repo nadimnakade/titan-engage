@@ -3,7 +3,13 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PrototypeStore } from '../data/prototype-store';
 import { BrandingStore, DocumentTemplate } from '../data/branding-store';
-type Row = Record<string, string | number | boolean>;
+import {
+  BLIND_FAMILIES,
+  CONFIGURABLE_SPECS,
+  DEFAULT_BLIND_CONFIG,
+  BlindProductConfig,
+} from '../data/blind-config';
+type Row = Record<string, any>;
 type Field = {
   key: string;
   label: string;
@@ -108,6 +114,17 @@ const MODULES: Record<
         price: 1200,
         tax: 'VAT 20%',
         status: 'Active',
+      },
+      {
+        id: 'PRD-BLIND-ROLLER',
+        name: 'Premium Blackout Roller Blind',
+        sku: 'BL-RLR-BLK',
+        category: 'Hardware',
+        price: 520,
+        tax: 'VAT 20%',
+        status: 'Active',
+        customSpecs: true,
+        blindConfig: structuredClone(DEFAULT_BLIND_CONFIG),
       },
       {
         id: 'PRD-102',
@@ -313,6 +330,8 @@ export class ModulePage {
     'Tax collected',
   ];
   protected templates = ['Professional', 'Modern', 'Minimal', 'Elegant'];
+  protected blindFamilies = BLIND_FAMILIES;
+  protected configurableSpecs = CONFIGURABLE_SPECS;
   protected settingsTabs = [
     'Business profile',
     'Legal entities',
@@ -388,6 +407,37 @@ export class ModulePage {
       [key]:
         this.config.fields.find((f) => f.key === key)?.type === 'number' ? Number(value) : value,
     }));
+  }
+  protected productConfig(): BlindProductConfig {
+    return (
+      this.editing()['blindConfig'] || {
+        ...structuredClone(DEFAULT_BLIND_CONFIG),
+        madeToMeasure: !!this.editing()['customSpecs'],
+      }
+    );
+  }
+  protected setMadeToMeasure(enabled: boolean) {
+    this.editing.update((row) => ({
+      ...row,
+      customSpecs: enabled,
+      blindConfig: { ...this.productConfig(), madeToMeasure: enabled },
+    }));
+  }
+  protected updateBlindConfig(key: keyof BlindProductConfig, value: unknown) {
+    this.editing.update((row) => ({
+      ...row,
+      blindConfig: { ...this.productConfig(), [key]: value },
+    }));
+  }
+  protected updateBlindDefault(key: string, value: string) {
+    this.updateBlindConfig('defaults', { ...this.productConfig().defaults, [key]: value });
+  }
+  protected toggleBlindSpec(key: string) {
+    const config = this.productConfig();
+    const enabledSpecs = config.enabledSpecs.includes(key)
+      ? config.enabledSpecs.filter((item) => item !== key)
+      : [...config.enabledSpecs, key];
+    this.updateBlindConfig('enabledSpecs', enabledSpecs);
   }
   protected save() {
     const row = { ...this.editing() };

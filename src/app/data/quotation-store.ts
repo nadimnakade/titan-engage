@@ -48,7 +48,7 @@ const seeds:QuoteRecord[]=[
   if(!q||q.invoice||q.visibility==='Trash')return q?.invoice;
   const invoice=q.id.replace(/^Q-/,'INV-');
   this.patch(id,{invoice},`Converted to ${invoice}`);
-  this.documents.save({id:invoice,kind:'invoice',customer:q.customer,date:q.created,due:q.validUntil,total:q.total,paid:0,status:'Draft'});
+  this.documents.save({id:invoice,kind:'invoice',customer:q.customer,date:q.created,due:q.validUntil,total:q.total,paid:0,status:'Draft',items:q.items.map((item)=>({id:item.id,name:item.name,description:item.description,qty:item.qty,unit:'Each',price:item.price,discount:item.discount,tax:item.tax,madeToMeasure:Object.keys(item.attributes).length>0,family:String(item.attributes['Blind type']||''),specifications:structuredClone(item.attributes)}))});
   return invoice;
  }
  sendEmail(id:string,recipient:string,subject:string){this.patch(id,{emailState:'Sent'},`Email sent to ${recipient}: ${subject}`)}

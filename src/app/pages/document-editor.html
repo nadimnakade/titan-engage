@@ -103,7 +103,8 @@
           ><span>Discount</span><span>Amount</span><span></span>
         </div>
         @for (item of items.controls; track item; let i = $index) {
-          <div class="editable-line" [formGroupName]="i">
+          <div class="line-block" [formGroupName]="i">
+          <div class="editable-line">
             <div class="item-copy">
               <input
                 class="item-name"
@@ -158,6 +159,42 @@
               ×
             </button>
           </div>
+          @if (item.get('madeToMeasure')?.value) {
+            <section class="custom-specs" formGroupName="specifications">
+              <header><div><b>Custom Specifications</b><span>{{ item.get('family')?.value }} blind · saved with this line item</span></div><button type="button" (click)="duplicateItem(i)">Duplicate configured blind</button></header>
+              <p class="side-convention">Left and right are viewed from inside the room, facing the window.</p>
+              <div class="spec-grid">
+                @if (specEnabled(i, 'room')) {<label class="wide"><span>Room / Window</span><input formControlName="room" placeholder="Living Room - Window 1" /></label>}
+                <label><span>Width *</span><input type="number" min="0.01" step="0.1" formControlName="width" /></label>
+                <label><span>Height / Drop *</span><input type="number" min="0.01" step="0.1" formControlName="drop" /></label>
+                <label><span>Measurement unit</span><select formControlName="unit"><option>mm</option><option>cm</option></select></label>
+                @if (specEnabled(i, 'measurementBasis')) {<label><span>Measurement basis</span><select formControlName="measurementBasis">@for (option of specOptions(i, 'measurementBasis'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                @if (specEnabled(i, 'fittingPosition')) {<label><span>Fitting position</span><select formControlName="fittingPosition">@for (option of specOptions(i, 'fittingPosition'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                @if (specEnabled(i, 'mountingSurface')) {<label><span>Mounting surface</span><select formControlName="mountingSurface">@for (option of specOptions(i, 'mountingSurface'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                @if (specEnabled(i, 'fabric')) {<label><span>Fabric / Colour / Finish</span><select formControlName="fabric"><option value="">Select finish</option>@for (option of specOptions(i, 'fabric'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                @if (specEnabled(i, 'operation')) {<label><span>Operation</span><select formControlName="operation">@for (option of specOptions(i, 'operation'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                @if (isManual(i)) {
+                  @if (specEnabled(i, 'manualMechanism')) {<label><span>Manual mechanism</span><select formControlName="manualMechanism">@for (option of specOptions(i, 'manualMechanism'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                  @if (specEnabled(i, 'controlPosition')) {<label><span>Control position</span><select formControlName="controlPosition">@for (option of specOptions(i, 'controlPosition'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                  @if (specEnabled(i, 'chainLength')) {<label><span>Chain / cord length</span><select formControlName="chainLength">@for (option of specOptions(i, 'chainLength'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                  @if (item.get('specifications.chainLength')?.value === 'Custom length') {<label><span>Custom length (selected unit) *</span><input type="number" min="0.01" formControlName="customChainLength" /></label>}
+                  @if (specEnabled(i, 'rollDirection')) {<label><span>Roll direction</span><select formControlName="rollDirection">@for (option of specOptions(i, 'rollDirection'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                }
+                @if (isMotorised(i)) {
+                  @if (specEnabled(i, 'motorType')) {<label><span>Motor type / model</span><select formControlName="motorType"><option value="">Select motor</option>@for (option of specOptions(i, 'motorType'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                  @if (specEnabled(i, 'motorPower')) {<label><span>Motor power</span><select formControlName="motorPower"><option value="">Select power</option>@for (option of specOptions(i, 'motorPower'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                  @if (specEnabled(i, 'motorControl')) {<label><span>Motor control</span><select formControlName="motorControl"><option value="">Select control</option>@for (option of specOptions(i, 'motorControl'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                  @if (specEnabled(i, 'motorPosition')) {<label><span>Motor position</span><select formControlName="motorPosition"><option value="">Not applicable</option>@for (option of specOptions(i, 'motorPosition'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                }
+                @if (specEnabled(i, 'openingDirection')) {<label><span>Opening / travel direction</span><select formControlName="openingDirection"><option value="">Not applicable</option>@for (option of specOptions(i, 'openingDirection'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                @if (specEnabled(i, 'stackingPosition')) {<label><span>Stacking position</span><select formControlName="stackingPosition"><option value="">Not applicable</option>@for (option of specOptions(i, 'stackingPosition'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                @if (specEnabled(i, 'slatWidth')) {<label><span>Slat width</span><select formControlName="slatWidth"><option value="">Select size</option>@for (option of specOptions(i, 'slatWidth'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                @if (specEnabled(i, 'extras')) {<label><span>Extras</span><select formControlName="extras">@for (option of specOptions(i, 'extras'); track option) {<option [value]="option">{{ option }}</option>}</select></label>}
+                @if (specEnabled(i, 'instructions')) {<label class="wide"><span>Special instructions</span><textarea rows="2" formControlName="instructions" placeholder="Manufacturing or fitting notes"></textarea></label>}
+              </div>
+            </section>
+          }
+          </div>
         }
       </section>
       <div class="line-actions">
@@ -173,12 +210,12 @@
           @if (productMenu()) {
             <div class="product-menu">
               <strong>Product catalogue</strong>
-              @for (p of products; track p[0]) {
+              @for (p of products; track p.id) {
                 <button type="button" (click)="addItem(p)">
                   <span
-                    ><b>{{ p[0] }}</b
-                    ><small>{{ p[1] }}</small></span
-                  ><em>{{ p[2] | currency: form.controls.currency.value }}</em>
+                    ><b>{{ p.name }}</b
+                    ><small>{{ p.description }} @if (p.config?.madeToMeasure) { · Made to measure }</small></span
+                  ><em>{{ p.price | currency: form.controls.currency.value }}</em>
                 </button>
               }
             </div>
