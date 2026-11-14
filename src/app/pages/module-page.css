@@ -611,6 +611,7 @@
   border-radius: 15px;
   box-shadow: 0 25px 70px #0f172a50;
 }
+.modal.product-config-modal { width: min(1040px, 100%); }
 .modal header {
   padding: 19px 21px;
   border-bottom: 1px solid #e8edf3;
@@ -675,6 +676,18 @@
 .spec-picker header span { color: #647a92; font-size: 12px; }
 .spec-picker > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px 12px; }
 .spec-picker label { min-height: 40px; display: flex; align-items: center; gap: 8px; padding: 8px; border-radius: 8px; background: #fff; font-size: 12px; }
+.required-toggle { margin-left: auto; border: 1px solid #cbd9e8; border-radius: 999px; padding: 4px 8px; background: #fff; color: #60748b; font-size: 10px; font-weight: 700; }
+.required-toggle.active { border-color: #8db5ff; background: #eaf2ff; color: #0f67ff; }
+.configuration-panel { margin-top: 18px; padding-top: 16px; border-top: 1px solid #dbe7f3; }
+.configuration-panel > header { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.configuration-panel > header b { font-size: 13px; }
+.configuration-panel > header span { color: #647a92; font-size: 11px; }
+.option-config-head, .option-config-row { display: grid; grid-template-columns: 1.1fr 2fr 1.25fr 1.6fr; gap: 8px; align-items: center; }
+.option-config-head { padding: 7px 9px; color: #647a92; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+.option-config-row { padding: 8px; border-top: 1px solid #e4edf6; background: #fff; }
+.option-config-row b { font-size: 11px; }
+.option-config-row .field { min-width: 0; }
+.pricing-panel .wide { grid-column: 1 / -1; }
 .modal > footer {
   display: flex;
   justify-content: flex-end;
@@ -772,6 +785,8 @@
   .table-card table {
     min-width: 760px;
   }
+  .option-config-head { display: none; }
+  .option-config-row { grid-template-columns: 1fr; padding: 12px; margin-top: 8px; border: 1px solid #dbe7f3; border-radius: 10px; }
 }
 .sr-only {
   position: absolute !important;

@@ -382,7 +382,7 @@
   }
   @if (modal()) {
     <div class="modal-backdrop" (click)="modal.set(false)">
-      <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal" [class.product-config-modal]="slug === 'products' && editing()['customSpecs']" (click)="$event.stopPropagation()">
         <header>
           <div>
             <h2>{{ editing()['id'] ? 'Edit' : 'Add' }} {{ config.singular.toLowerCase() }}</h2>
@@ -427,14 +427,37 @@
             </label>
             @if (editing()['customSpecs']) {
               <div class="blind-admin-grid">
-                <label><span class="label">Product family</span><select class="field" [ngModel]="productConfig().family" (ngModelChange)="updateBlindConfig('family', $event)">@for (family of blindFamilies; track family) {<option>{{ family }}</option>}</select></label>
+                <label><span class="label">Product family</span><select class="field" [ngModel]="productConfig().family" (ngModelChange)="updateBlindFamily($event)">@for (family of blindFamilies; track family) {<option>{{ family }}</option>}</select></label>
                 <label><span class="label">Default operation</span><select class="field" [ngModel]="productConfig().defaults['operation']" (ngModelChange)="updateBlindDefault('operation', $event)"><option>Manual</option><option>Motorised</option><option>Cordless</option><option>Spring</option></select></label>
-                <label><span class="label">Minimum width</span><input class="field" type="number" min="0" [ngModel]="productConfig().minWidth" (ngModelChange)="updateBlindConfig('minWidth', +$event)" /></label>
-                <label><span class="label">Maximum width</span><input class="field" type="number" min="0" [ngModel]="productConfig().maxWidth" (ngModelChange)="updateBlindConfig('maxWidth', +$event)" /></label>
-                <label><span class="label">Minimum drop</span><input class="field" type="number" min="0" [ngModel]="productConfig().minDrop" (ngModelChange)="updateBlindConfig('minDrop', +$event)" /></label>
-                <label><span class="label">Maximum drop</span><input class="field" type="number" min="0" [ngModel]="productConfig().maxDrop" (ngModelChange)="updateBlindConfig('maxDrop', +$event)" /></label>
+                <label><span class="label">Minimum width (cm)</span><input class="field" type="number" min="0" [ngModel]="productConfig().minWidth" (ngModelChange)="updateBlindConfig('minWidth', +$event)" /></label>
+                <label><span class="label">Maximum width (cm)</span><input class="field" type="number" min="0" [ngModel]="productConfig().maxWidth" (ngModelChange)="updateBlindConfig('maxWidth', +$event)" /></label>
+                <label><span class="label">Minimum drop (cm)</span><input class="field" type="number" min="0" [ngModel]="productConfig().minDrop" (ngModelChange)="updateBlindConfig('minDrop', +$event)" /></label>
+                <label><span class="label">Maximum drop (cm)</span><input class="field" type="number" min="0" [ngModel]="productConfig().maxDrop" (ngModelChange)="updateBlindConfig('maxDrop', +$event)" /></label>
               </div>
-              <div class="spec-picker"><header><b>Enabled line-item fields</b><span>Width, drop and unit are always required.</span></header><div>@for (spec of configurableSpecs; track spec[0]) {<label><input type="checkbox" [checked]="productConfig().enabledSpecs.includes(spec[0])" (change)="toggleBlindSpec(spec[0])" /><span>{{ spec[1] }}</span></label>}</div></div>
+              <div class="spec-picker"><header><b>Enabled and required line-item fields</b><span>Width, drop and unit are always required.</span></header><div>@for (spec of configurableSpecs; track spec[0]) {<label><input type="checkbox" [checked]="productConfig().enabledSpecs.includes(spec[0])" (change)="toggleBlindSpec(spec[0])" /><span>{{ spec[1] }}</span>@if(productConfig().enabledSpecs.includes(spec[0])){<button type="button" class="required-toggle" [class.active]="(productConfig().requiredSpecs || []).includes(spec[0])" (click)="toggleRequiredSpec(spec[0]); $event.preventDefault()">{{ (productConfig().requiredSpecs || []).includes(spec[0]) ? 'Required' : 'Optional' }}</button>}</label>}</div></div>
+              <section class="configuration-panel">
+                <header><b>Selectable choices, defaults and price adjustments</b><span>Comma-separate choices. Enter adjustments as “Option: amount”.</span></header>
+                <div class="option-config-head"><span>Field</span><span>Allowed choices</span><span>Default</span><span>Price adjustments</span></div>
+                @for (spec of configurableSpecs; track spec[0]) {
+                  @if (productConfig().enabledSpecs.includes(spec[0]) && productConfig().options[spec[0]]) {
+                    <div class="option-config-row">
+                      <b>{{ spec[1] }}</b>
+                      <input class="field" [ngModel]="optionText(spec[0])" (ngModelChange)="updateBlindOptions(spec[0], $event)" />
+                      <select class="field" [ngModel]="productConfig().defaults[spec[0]] || ''" (ngModelChange)="updateBlindDefault(spec[0], $event)"><option value="">No default</option>@for(option of productConfig().options[spec[0]]; track option){<option>{{ option }}</option>}</select>
+                      <input class="field" placeholder="Motorised: 180" [ngModel]="adjustmentText(spec[0])" (ngModelChange)="updateOptionAdjustments(spec[0], $event)" />
+                    </div>
+                  }
+                }
+              </section>
+              <section class="configuration-panel pricing-panel">
+                <header><b>Automatic pricing rule</b><span>Manual override remains available on every document line.</span></header>
+                <div class="blind-admin-grid">
+                  <label><span class="label">Pricing method</span><select class="field" [ngModel]="productPricing().mode" (ngModelChange)="updatePricing('mode', $event)"><option value="manual">Catalogue price + option adjustments</option><option value="squareMetre">Price per square metre</option><option value="sizeBands">Width/drop size bands</option></select></label>
+                  <label><span class="label">Minimum charge</span><input class="field" type="number" min="0" [ngModel]="productPricing().minimumCharge" (ngModelChange)="updatePricing('minimumCharge', +$event)" /></label>
+                  @if(productPricing().mode === 'squareMetre'){<label><span class="label">Price per m²</span><input class="field" type="number" min="0" [ngModel]="productPricing().pricePerSquareMetre" (ngModelChange)="updatePricing('pricePerSquareMetre', +$event)" /></label>}
+                  @if(productPricing().mode === 'sizeBands'){<label class="wide"><span class="label">Size bands in cm (max width × max drop: price)</span><input class="field" placeholder="100x150: 250, 150x200: 390" [ngModel]="sizeBandText()" (ngModelChange)="updateSizeBands($event)" /></label>}
+                </div>
+              </section>
             }
           </section>
         }

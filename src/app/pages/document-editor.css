@@ -1093,3 +1093,4 @@ textarea:focus-visible {
     padding: 0 !important;
   }
 }
+.customer-contact { display: grid; gap: 3px; white-space: pre-line; }

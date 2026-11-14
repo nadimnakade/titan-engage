@@ -432,12 +432,87 @@ export class ModulePage {
   protected updateBlindDefault(key: string, value: string) {
     this.updateBlindConfig('defaults', { ...this.productConfig().defaults, [key]: value });
   }
+  protected updateBlindFamily(family: BlindProductConfig['family']) {
+    const config = this.productConfig();
+    const additions = family === 'Venetian Blinds' || family === 'Wooden Blinds'
+      ? ['slatWidth', 'liftControlSide', 'tiltControlSide', 'tiltMechanism']
+      : family === 'Vertical Blinds' || family === 'Sheer Vertical Blinds'
+        ? ['openingDirection', 'stackingPosition', 'slatWidth']
+        : [];
+    this.editing.update((row) => ({
+      ...row,
+      blindConfig: {
+        ...config,
+        family,
+        enabledSpecs: [...new Set([...config.enabledSpecs, ...additions])],
+      },
+    }));
+  }
   protected toggleBlindSpec(key: string) {
     const config = this.productConfig();
     const enabledSpecs = config.enabledSpecs.includes(key)
       ? config.enabledSpecs.filter((item) => item !== key)
       : [...config.enabledSpecs, key];
     this.updateBlindConfig('enabledSpecs', enabledSpecs);
+  }
+  protected toggleRequiredSpec(key: string) {
+    const required = this.productConfig().requiredSpecs || [];
+    this.updateBlindConfig(
+      'requiredSpecs',
+      required.includes(key) ? required.filter((item) => item !== key) : [...required, key],
+    );
+  }
+  protected updateBlindOptions(key: string, value: string) {
+    const options = value.split(',').map((item) => item.trim()).filter(Boolean);
+    this.updateBlindConfig('options', { ...this.productConfig().options, [key]: options });
+    if (options.length && !options.includes(this.productConfig().defaults[key]))
+      this.updateBlindDefault(key, options[0]);
+  }
+  protected optionText(key: string) {
+    return (this.productConfig().options[key] || []).join(', ');
+  }
+  protected adjustmentText(key: string) {
+    return Object.entries(this.productConfig().optionPriceAdjustments?.[key] || {})
+      .map(([option, amount]) => `${option}: ${amount}`)
+      .join(', ');
+  }
+  protected updateOptionAdjustments(key: string, value: string) {
+    const adjustments: Record<string, number> = {};
+    for (const part of value.split(',')) {
+      const separator = part.lastIndexOf(':');
+      if (separator < 0) continue;
+      const option = part.slice(0, separator).trim();
+      const amount = Number(part.slice(separator + 1).trim());
+      if (option && Number.isFinite(amount)) adjustments[option] = amount;
+    }
+    this.updateBlindConfig('optionPriceAdjustments', {
+      ...(this.productConfig().optionPriceAdjustments || {}),
+      [key]: adjustments,
+    });
+  }
+  protected productPricing() {
+    return this.productConfig().pricing || {
+      mode: 'manual' as const,
+      minimumCharge: 0,
+      pricePerSquareMetre: 0,
+      sizeBands: [],
+    };
+  }
+  protected updatePricing(key: string, value: unknown) {
+    this.updateBlindConfig('pricing', { ...this.productPricing(), [key]: value });
+  }
+  protected sizeBandText() {
+    return this.productPricing().sizeBands
+      .map((band) => `${band.maxWidth}x${band.maxDrop}: ${band.price}`)
+      .join(', ');
+  }
+  protected updateSizeBands(value: string) {
+    const sizeBands: Array<{ maxWidth: number; maxDrop: number; price: number }> = [];
+    for (const part of value.split(',')) {
+      const match = part.trim().match(/^(\d+(?:\.\d+)?)\s*x\s*(\d+(?:\.\d+)?)\s*:\s*(\d+(?:\.\d+)?)$/i);
+      if (match) sizeBands.push({ maxWidth: Number(match[1]), maxDrop: Number(match[2]), price: Number(match[3]) });
+    }
+    this.updatePricing('sizeBands', sizeBands);
   }
   protected save() {
     const row = { ...this.editing() };

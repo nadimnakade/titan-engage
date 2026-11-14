@@ -17,6 +17,14 @@ export interface BlindProductConfig {
   enabledSpecs: string[];
   defaults: Record<string, string>;
   options: Record<string, string[]>;
+  requiredSpecs?: string[];
+  optionPriceAdjustments?: Record<string, Record<string, number>>;
+  pricing?: {
+    mode: 'manual' | 'squareMetre' | 'sizeBands';
+    minimumCharge: number;
+    pricePerSquareMetre: number;
+    sizeBands: Array<{ maxWidth: number; maxDrop: number; price: number }>;
+  };
   minWidth?: number;
   maxWidth?: number;
   minDrop?: number;
@@ -60,12 +68,16 @@ export const CONFIGURABLE_SPECS = [
   ['chainLength', 'Chain / cord length'],
   ['rollDirection', 'Roll direction'],
   ['slatWidth', 'Slat width'],
+  ['liftControlSide', 'Lift control side'],
+  ['tiltControlSide', 'Tilt control side'],
+  ['tiltMechanism', 'Tilt mechanism'],
   ['motorType', 'Motor type / model'],
   ['motorPower', 'Motor power'],
   ['motorControl', 'Motor control'],
   ['motorPosition', 'Motor position'],
   ['extras', 'Extras'],
-  ['instructions', 'Special instructions'],
+  ['childSafetyDevice', 'Child-safety device / information'],
+  ['instructions', 'Other description / special instructions'],
 ] as const;
 
 export const DEFAULT_BLIND_CONFIG: BlindProductConfig = {
@@ -87,6 +99,7 @@ export const DEFAULT_BLIND_CONFIG: BlindProductConfig = {
     'motorControl',
     'motorPosition',
     'extras',
+    'childSafetyDevice',
     'instructions',
   ],
   defaults: {
@@ -99,25 +112,41 @@ export const DEFAULT_BLIND_CONFIG: BlindProductConfig = {
     controlPosition: 'Right',
     chainLength: 'Standard',
     rollDirection: 'Standard',
+    childSafetyDevice: 'Chain tensioner',
   },
   options: {
     measurementBasis: ['Recess opening', 'Exact finished blind size'],
     fittingPosition: ['Inside recess', 'Outside recess'],
     mountingSurface: ['Wall', 'Ceiling', 'Recessed'],
     fabric: ['Blackout Grey', 'Blackout Charcoal', 'White', 'Supplier selection'],
-    operation: ['Manual', 'Motorised', 'Cordless', 'Spring'],
-    manualMechanism: ['Chain', 'Cord', 'Wand'],
+    operation: ['Manual', 'Motorised', 'Cordless', 'Spring', 'Other'],
+    manualMechanism: ['Chain', 'Cord', 'Wand', 'Other'],
     controlPosition: ['Left', 'Right'],
-    openingDirection: ['Left', 'Right', 'Centre split', 'Up', 'Down'],
+    openingDirection: ['Left', 'Right', 'Centre split', 'Up', 'Down', 'Other'],
     stackingPosition: ['Left', 'Right', 'Centre split'],
     chainLength: ['Standard', 'Custom length'],
     rollDirection: ['Standard', 'Reverse'],
     slatWidth: ['25 mm', '50 mm', '89 mm', '127 mm'],
+    liftControlSide: ['Left', 'Right'],
+    tiltControlSide: ['Left', 'Right'],
+    tiltMechanism: ['Cord', 'Wand'],
     motorType: ['Somfy WireFree', 'Rechargeable tubular motor', 'Supplier compatible motor'],
     motorPower: ['Rechargeable battery', 'Battery', 'Mains'],
     motorControl: ['Remote', 'Wall switch', 'App', 'Smart-home control'],
     motorPosition: ['Left', 'Right'],
     extras: ['None', 'Cassette', 'Pelmet', 'Guide rails', 'Remote'],
+    childSafetyDevice: ['Not applicable', 'Chain tensioner', 'Cord cleat', 'Breakaway connector', 'Supplier compliant device'],
+  },
+  requiredSpecs: ['room', 'fabric'],
+  optionPriceAdjustments: {
+    extras: { Cassette: 45, Pelmet: 70, 'Guide rails': 55, Remote: 35 },
+    operation: { Motorised: 180 },
+  },
+  pricing: {
+    mode: 'manual',
+    minimumCharge: 0,
+    pricePerSquareMetre: 0,
+    sizeBands: [],
   },
   minWidth: 30,
   maxWidth: 300,
@@ -146,7 +175,11 @@ export function customerDescription(name: string, specs: Record<string, unknown>
   const operation = specs['operation'] === 'Manual'
     ? `Manual${specs['manualMechanism'] ? `, ${specs['manualMechanism']}` : ''}${specs['controlPosition'] ? ` ${specs['controlPosition']}` : ''}`
     : String(specs['operation'] || '');
-  return [name, specs['room'], dimensions, specs['fabric'], specs['fittingPosition'], specs['mountingSurface'] ? `${specs['mountingSurface']} hanging` : '', operation, specs['rollDirection'] ? `${specs['rollDirection']} roll` : '']
+  const venetianControls = [
+    specs['liftControlSide'] ? `Lift ${specs['liftControlSide']}` : '',
+    specs['tiltMechanism'] ? `Tilt ${specs['tiltMechanism']}${specs['tiltControlSide'] ? ` ${specs['tiltControlSide']}` : ''}` : '',
+  ].filter(Boolean).join(', ');
+  return [name, specs['room'], dimensions, specs['fabric'], specs['fittingPosition'], specs['mountingSurface'] ? `${specs['mountingSurface']} hanging` : '', operation, venetianControls, specs['rollDirection'] ? `${specs['rollDirection']} roll` : '', specs['extras'] && specs['extras'] !== 'None' ? specs['extras'] : '']
     .filter(Boolean)
     .join(' - ');
 }

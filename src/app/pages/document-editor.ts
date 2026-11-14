@@ -36,12 +36,15 @@ export class DocumentEditorPage {
   protected saved = signal(false);
   protected newCustomerOpen = signal(false);
   protected addCustomerContact = signal(true);
-  protected newCustomer = signal({ name: '', email: '', address: '' });
+  protected newCustomer = signal({ name: '', email: '', phone: '', address: '' });
   protected form = this.fb.nonNullable.group({
     number: [this.kind === 'invoice' ? 'INV-2026-0127' : 'Q-2026-0049', [Validators.required]],
     date: ['2026-10-31'],
     due: ['2026-11-30'],
     customer: ['Global Tech Ltd', Validators.required],
+    customerAddress: ['455 Innovation Drive\nLondon, United Kingdom'],
+    customerEmail: ['billing@globaltech.demo'],
+    customerPhone: ['+44 20 7946 0184'],
     currency: ['USD'],
     reference: ['PO-4582'],
     discount: [0],
@@ -61,6 +64,12 @@ export class DocumentEditorPage {
     'Northstar Retail',
     'Apex Industries',
   ];
+  private customerDirectory: Record<string, { address: string; email: string; phone: string }> = {
+    'Global Tech Ltd': { address: '455 Innovation Drive\nLondon, United Kingdom', email: 'billing@globaltech.demo', phone: '+44 20 7946 0184' },
+    'Horizon Solutions': { address: '12 Harbour Road\nValletta, Malta', email: 'accounts@horizon.demo', phone: '+356 2123 4455' },
+    'Northstar Retail': { address: '88 Market Street\nManchester, United Kingdom', email: 'finance@northstar.demo', phone: '+44 161 555 0142' },
+    'Apex Industries': { address: '41 Enterprise Park\nDublin, Ireland', email: 'billing@apex.demo', phone: '+353 1 555 0198' },
+  };
   protected products = this.loadCatalogue();
   get items() {
     return this.form.controls.items as FormArray;
@@ -120,6 +129,7 @@ export class DocumentEditorPage {
       qty: [qty, [Validators.required, Validators.min(0.01)]],
       unit: ['Each'],
       price: [price, [Validators.required, Validators.min(0)]],
+      basePrice: [product?.price ?? price],
       discount: [0],
       tax: [tax],
       madeToMeasure: [!!config?.madeToMeasure],
@@ -143,11 +153,15 @@ export class DocumentEditorPage {
         customChainLength: [Number(savedSpecs['customChainLength'] || 0)],
         rollDirection: [String(savedSpecs['rollDirection'] || defaults['rollDirection'] || 'Standard')],
         slatWidth: [String(savedSpecs['slatWidth'] || '')],
+        liftControlSide: [String(savedSpecs['liftControlSide'] || defaults['liftControlSide'] || '')],
+        tiltControlSide: [String(savedSpecs['tiltControlSide'] || defaults['tiltControlSide'] || '')],
+        tiltMechanism: [String(savedSpecs['tiltMechanism'] || defaults['tiltMechanism'] || '')],
         motorType: [String(savedSpecs['motorType'] || '')],
         motorPower: [String(savedSpecs['motorPower'] || '')],
         motorControl: [String(savedSpecs['motorControl'] || '')],
         motorPosition: [String(savedSpecs['motorPosition'] || '')],
         extras: [String(savedSpecs['extras'] || 'None')],
+        childSafetyDevice: [String(savedSpecs['childSafetyDevice'] || defaults['childSafetyDevice'] || '')],
         instructions: [String(savedSpecs['instructions'] || '')],
       }),
     });
@@ -160,6 +174,9 @@ export class DocumentEditorPage {
     if (existing)
       this.form.patchValue({
         customer: existing.customer,
+        customerAddress: existing.customerAddress || this.customerDirectory[existing.customer]?.address || '',
+        customerEmail: existing.customerEmail || this.customerDirectory[existing.customer]?.email || '',
+        customerPhone: existing.customerPhone || this.customerDirectory[existing.customer]?.phone || '',
         reference: `Source ${existing.id}`,
       });
     if (existing?.items?.length) {
@@ -207,6 +224,7 @@ export class DocumentEditorPage {
         product,
       ),
     );
+    if (product?.config) this.applyConfiguredPrice(this.items.length - 1);
     this.productMenu.set(false);
   }
   protected duplicateItem(i: number) {
@@ -224,6 +242,33 @@ export class DocumentEditorPage {
   protected specOptions(i: number, key: string): string[] {
     const config = this.items.at(i).get('specConfig')?.value as BlindProductConfig | null;
     return config?.options[key] || [];
+  }
+  protected applyConfiguredPrice(i: number) {
+    const item = this.items.at(i);
+    const config = item.get('specConfig')?.value as BlindProductConfig | null;
+    if (!config) return;
+    const specs = item.get('specifications')?.value as Record<string, any>;
+    const pricing = config.pricing || { mode: 'manual', minimumCharge: 0, pricePerSquareMetre: 0, sizeBands: [] };
+    const base = Number(item.get('basePrice')?.value || item.get('price')?.value || 0);
+    let calculated = base;
+    const width = Number(specs['width'] || 0);
+    const drop = Number(specs['drop'] || 0);
+    if (pricing.mode === 'squareMetre' && width > 0 && drop > 0) {
+      const factor = specs['unit'] === 'mm' ? 0.000001 : 0.0001;
+      calculated = Math.max(Number(pricing.minimumCharge || 0), width * drop * factor * Number(pricing.pricePerSquareMetre || 0));
+    } else if (pricing.mode === 'sizeBands' && width > 0 && drop > 0) {
+      const widthCm = specs['unit'] === 'mm' ? width / 10 : width;
+      const dropCm = specs['unit'] === 'mm' ? drop / 10 : drop;
+      const band = [...(pricing.sizeBands || [])]
+        .sort((a, b) => a.maxWidth * a.maxDrop - b.maxWidth * b.maxDrop)
+        .find((candidate) => widthCm <= candidate.maxWidth && dropCm <= candidate.maxDrop);
+      calculated = Math.max(Number(pricing.minimumCharge || 0), Number(band?.price ?? base));
+    }
+    for (const [key, adjustments] of Object.entries(config.optionPriceAdjustments || {})) {
+      calculated += Number(adjustments[String(specs[key] || '')] || 0);
+    }
+    item.get('price')?.setValue(Math.round(calculated * 100) / 100);
+    this.store.notify(`Configured price updated to ${this.form.controls.currency.value} ${calculated.toFixed(2)}`);
   }
   protected isManual(i: number) {
     return this.items.at(i).get('specifications.operation')?.value === 'Manual';
@@ -257,6 +302,9 @@ export class DocumentEditorPage {
       id: this.form.controls.number.value,
       kind: this.kind,
       customer: this.form.controls.customer.value,
+      customerAddress: this.form.controls.customerAddress.value,
+      customerEmail: this.form.controls.customerEmail.value,
+      customerPhone: this.form.controls.customerPhone.value,
       date: '31 Oct 2026',
       due: '30 Nov 2026',
       total: this.total() / 100,
@@ -269,7 +317,7 @@ export class DocumentEditorPage {
       this.quotes.upsert({
         id: this.form.controls.number.value,
         customer: this.form.controls.customer.value,
-        email: current?.email || 'customer@example.demo',
+        email: this.form.controls.customerEmail.value || current?.email || 'customer@example.demo',
         created: current?.created || '31 Oct 2026',
         validUntil: current?.validUntil || '30 Nov 2026',
         currency: this.form.controls.currency.value,
@@ -349,15 +397,33 @@ export class DocumentEditorPage {
       const config = item.get('specConfig')?.value as BlindProductConfig;
       const width = Number(specs['width']);
       const drop = Number(specs['drop']);
+      const widthForLimits = specs['unit'] === 'mm' ? width / 10 : width;
+      const dropForLimits = specs['unit'] === 'mm' ? drop / 10 : drop;
       if (!(width > 0) || !(drop > 0)) return `Item ${i + 1}: width and drop must be positive values`;
-      if (config?.minWidth && width < config.minWidth) return `Item ${i + 1}: width must be at least ${config.minWidth} ${specs['unit']}`;
-      if (config?.maxWidth && width > config.maxWidth) return `Item ${i + 1}: width cannot exceed ${config.maxWidth} ${specs['unit']}`;
-      if (config?.minDrop && drop < config.minDrop) return `Item ${i + 1}: drop must be at least ${config.minDrop} ${specs['unit']}`;
-      if (config?.maxDrop && drop > config.maxDrop) return `Item ${i + 1}: drop cannot exceed ${config.maxDrop} ${specs['unit']}`;
+      if (config?.minWidth && widthForLimits < config.minWidth) return `Item ${i + 1}: width must be at least ${config.minWidth} cm`;
+      if (config?.maxWidth && widthForLimits > config.maxWidth) return `Item ${i + 1}: width cannot exceed ${config.maxWidth} cm`;
+      if (config?.minDrop && dropForLimits < config.minDrop) return `Item ${i + 1}: drop must be at least ${config.minDrop} cm`;
+      if (config?.maxDrop && dropForLimits > config.maxDrop) return `Item ${i + 1}: drop cannot exceed ${config.maxDrop} cm`;
       if (specs['chainLength'] === 'Custom length' && !(Number(specs['customChainLength']) > 0))
         return `Item ${i + 1}: enter a positive custom chain or cord length`;
+      for (const key of config?.requiredSpecs || []) {
+        if (!config.enabledSpecs.includes(key)) continue;
+        if (this.isConditionalSpecHidden(key, specs['operation'])) continue;
+        if (!String(specs[key] ?? '').trim()) return `Item ${i + 1}: ${key.replace(/([A-Z])/g, ' $1').toLowerCase()} is required`;
+      }
+      for (const key of config?.enabledSpecs || []) {
+        const allowed = config.options[key] || [];
+        const selected = String(specs[key] ?? '');
+        if (selected && allowed.length && !allowed.includes(selected))
+          return `Item ${i + 1}: ${selected} is not an allowed ${key.replace(/([A-Z])/g, ' $1').toLowerCase()} option`;
+      }
     }
     return '';
+  }
+  private isConditionalSpecHidden(key: string, operation: string) {
+    const manual = ['manualMechanism', 'controlPosition', 'chainLength', 'rollDirection'];
+    const motor = ['motorType', 'motorPower', 'motorControl', 'motorPosition'];
+    return (manual.includes(key) && operation !== 'Manual') || (motor.includes(key) && operation !== 'Motorised');
   }
   private serialiseItems() {
     return this.items.controls.map((control, index) => {
@@ -381,7 +447,16 @@ export class DocumentEditorPage {
       };
     });
   }
-  protected updateNewCustomer(key: 'name' | 'email' | 'address', value: string) {
+  protected selectCustomer(name: string) {
+    const details = this.customerDirectory[name];
+    if (!details) return;
+    this.form.patchValue({
+      customerAddress: details.address,
+      customerEmail: details.email,
+      customerPhone: details.phone,
+    });
+  }
+  protected updateNewCustomer(key: 'name' | 'email' | 'phone' | 'address', value: string) {
     this.newCustomer.update((v) => ({ ...v, [key]: value }));
   }
   protected useNewCustomer() {
@@ -392,7 +467,17 @@ export class DocumentEditorPage {
     }
     if (this.addCustomerContact() && !this.customers.includes(customer.name))
       this.customers.push(customer.name);
+    this.customerDirectory[customer.name] = {
+      address: customer.address,
+      email: customer.email,
+      phone: customer.phone,
+    };
     this.form.controls.customer.setValue(customer.name);
+    this.form.patchValue({
+      customerAddress: customer.address,
+      customerEmail: customer.email,
+      customerPhone: customer.phone,
+    });
     this.newCustomerOpen.set(false);
     this.store.notify(
       this.addCustomerContact()
