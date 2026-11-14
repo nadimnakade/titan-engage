@@ -1,11 +1,14 @@
 export type BlindFamily =
-  | 'Roller'
-  | 'Day & Night'
-  | 'Vertical'
-  | 'Venetian'
-  | 'Roman'
-  | 'Pleated / Cellular'
-  | 'Panel Track'
+  | 'Roller Blinds'
+  | 'Zebra Blinds'
+  | 'Sheer Vertical Blinds'
+  | 'Plicell'
+  | 'Venetian Blinds'
+  | 'Wooden Blinds'
+  | 'Roman Blinds'
+  | 'Laser-Cut Roller Blinds'
+  | 'Curtains'
+  | 'Vertical Blinds'
   | 'Other';
 
 export interface BlindProductConfig {
@@ -30,13 +33,16 @@ export interface CatalogueProduct {
 }
 
 export const BLIND_FAMILIES: BlindFamily[] = [
-  'Roller',
-  'Day & Night',
-  'Vertical',
-  'Venetian',
-  'Roman',
-  'Pleated / Cellular',
-  'Panel Track',
+  'Roller Blinds',
+  'Zebra Blinds',
+  'Sheer Vertical Blinds',
+  'Plicell',
+  'Venetian Blinds',
+  'Wooden Blinds',
+  'Roman Blinds',
+  'Laser-Cut Roller Blinds',
+  'Curtains',
+  'Vertical Blinds',
   'Other',
 ];
 
@@ -44,7 +50,7 @@ export const CONFIGURABLE_SPECS = [
   ['room', 'Room / Window'],
   ['measurementBasis', 'Measurement basis'],
   ['fittingPosition', 'Fitting position'],
-  ['mountingSurface', 'Mounting surface'],
+  ['mountingSurface', 'Hanging type'],
   ['fabric', 'Fabric / Colour / Finish'],
   ['operation', 'Operation'],
   ['manualMechanism', 'Manual control mechanism'],
@@ -64,11 +70,12 @@ export const CONFIGURABLE_SPECS = [
 
 export const DEFAULT_BLIND_CONFIG: BlindProductConfig = {
   madeToMeasure: true,
-  family: 'Roller',
+  family: 'Roller Blinds',
   enabledSpecs: [
     'room',
     'measurementBasis',
     'fittingPosition',
+    'mountingSurface',
     'fabric',
     'operation',
     'manualMechanism',
@@ -86,6 +93,7 @@ export const DEFAULT_BLIND_CONFIG: BlindProductConfig = {
     unit: 'cm',
     measurementBasis: 'Recess opening',
     fittingPosition: 'Inside recess',
+    mountingSurface: 'Wall',
     operation: 'Manual',
     manualMechanism: 'Chain',
     controlPosition: 'Right',
@@ -95,7 +103,7 @@ export const DEFAULT_BLIND_CONFIG: BlindProductConfig = {
   options: {
     measurementBasis: ['Recess opening', 'Exact finished blind size'],
     fittingPosition: ['Inside recess', 'Outside recess'],
-    mountingSurface: ['Wall', 'Ceiling', 'Window frame'],
+    mountingSurface: ['Wall', 'Ceiling', 'Recessed'],
     fabric: ['Blackout Grey', 'Blackout Charcoal', 'White', 'Supplier selection'],
     operation: ['Manual', 'Motorised', 'Cordless', 'Spring'],
     manualMechanism: ['Chain', 'Cord', 'Wand'],
@@ -138,7 +146,7 @@ export function customerDescription(name: string, specs: Record<string, unknown>
   const operation = specs['operation'] === 'Manual'
     ? `Manual${specs['manualMechanism'] ? `, ${specs['manualMechanism']}` : ''}${specs['controlPosition'] ? ` ${specs['controlPosition']}` : ''}`
     : String(specs['operation'] || '');
-  return [name, specs['room'], dimensions, specs['fabric'], specs['fittingPosition'], operation, specs['rollDirection'] ? `${specs['rollDirection']} roll` : '']
+  return [name, specs['room'], dimensions, specs['fabric'], specs['fittingPosition'], specs['mountingSurface'] ? `${specs['mountingSurface']} hanging` : '', operation, specs['rollDirection'] ? `${specs['rollDirection']} roll` : '']
     .filter(Boolean)
     .join(' - ');
 }
